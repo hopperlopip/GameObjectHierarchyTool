@@ -174,13 +174,11 @@
             // 
             // openAssetsDialog
             // 
-            openAssetsDialog.DefaultExt = "assets";
-            openAssetsDialog.Filter = "Assets file|*.assets|Level file|level*";
+            openAssetsDialog.Filter = "Level file|level*|Assets file|*.assets";
             // 
             // saveAssetsDialog
             // 
-            saveAssetsDialog.DefaultExt = "assets";
-            saveAssetsDialog.Filter = "Assets file|*.assets|Level file|level*";
+            saveAssetsDialog.Filter = "Level file|level*|Assets file|*.assets";
             // 
             // saveGhDialog
             // 

@@ -1,6 +1,8 @@
 using AssetsTools.NET.Extra;
 using AssetsTools.NET;
 using System.IO;
+using System.Reflection;
+using System.Windows.Forms;
 
 namespace GameObjectHierarchyTransfer
 {
@@ -99,6 +101,7 @@ namespace GameObjectHierarchyTransfer
             if (assetsFile != null)
             {
                 int savedSelectedRowIndex = 0;
+                int savedScroll = gameObjectGridView.VerticalScrollingOffset;
                 if (gameObjectGridView.SelectedRows.Count != 0)
                 {
                     savedSelectedRowIndex = gameObjectGridView.SelectedRows[0].Index;
@@ -116,6 +119,8 @@ namespace GameObjectHierarchyTransfer
                 if (gameObjectGridView.Rows.Count != 0)
                 {
                     gameObjectGridView.Rows[savedSelectedRowIndex].Selected = true;
+                    PropertyInfo verticalOffset = gameObjectGridView.GetType().GetProperty("VerticalOffset", BindingFlags.NonPublic | BindingFlags.Instance);
+                    verticalOffset.SetValue(this.gameObjectGridView, savedScroll, null);
                 }
             }
         }
@@ -164,7 +169,7 @@ namespace GameObjectHierarchyTransfer
 
         private void exportButton_Click(object sender, EventArgs e)
         {
-            if (assetsFile == null)
+            if (gameObjectGridView.Rows.Count == 0)
             {
                 return;
             }
@@ -172,7 +177,7 @@ namespace GameObjectHierarchyTransfer
             AssetTypeValueField gameObjectBase = manager.GetBaseField(fileInstance, gameObjectPathID);
             AssetFileInfo gameObjectInfo = assetsFile.GetAssetInfo(gameObjectPathID);
             GameObject_Hierarchy_File GhFile = new GameObject_Hierarchy_File();
-            GhFile.parentGameObject = GetAssetsArray(assetsFile, gameObjectInfo);
+            GhFile.parentGameObject = gameObjectBase.WriteToByteArray();
             var components = gameObjectBase["m_Component.Array"];
             for (int i = 0; i < components.Children.Count; i++)
             {
@@ -181,7 +186,7 @@ namespace GameObjectHierarchyTransfer
                 var componentExtInfo = manager.GetExtAsset(fileInstance, componentPointer);
                 var componentType = componentExtInfo.info.TypeId;
                 GhFile.childrenTypeIDs.Add(componentType);
-                GhFile.children.Add(GetAssetsArray(assetsFile, componentExtInfo.info));
+                GhFile.children.Add(componentExtInfo.baseField.WriteToByteArray());
             }
             GH_Worker worker = new();
             saveGhDialog.FileName = $"{gameObjectGridView.SelectedRows[0].Cells[0].Value}";
@@ -194,7 +199,7 @@ namespace GameObjectHierarchyTransfer
 
         private void importButton_Click(object sender, EventArgs e)
         {
-            if (assetsFile == null)
+            if (gameObjectGridView.Rows.Count == 0)
             {
                 return;
             }
@@ -212,7 +217,7 @@ namespace GameObjectHierarchyTransfer
             var components = gameObjectBase["m_Component.Array"];
             components.Children.Clear();
             assetsFile.Metadata.AddAssetInfo(gameObjectInfo);
-            for (int i = 0; i < GhFile.children.Count; i++)
+            /*for (int i = 0; i < GhFile.children.Count; i++)
             {
                 int compPathID = assetsFile.AssetInfos.Count + 1;
                 var compInfo = AssetFileInfo.Create(assetsFile, compPathID, GhFile.childrenTypeIDs[i], manager.ClassDatabase, false);
@@ -220,15 +225,10 @@ namespace GameObjectHierarchyTransfer
                 var compBase = manager.GetBaseField(fileInstance, compInfo);
                 assetsFile.Metadata.AddAssetInfo(compInfo);
                 components.Children.Add(compBase);
-            }
+            }*/
             gameObjectInfo.SetNewData(gameObjectBase);
             UpdateAssetsFileList();
-        }
-
-        private byte[] GetAssetsArray(AssetsFile assetFile, AssetFileInfo assetFileInfo)
-        {
-            assetFile.Reader.Position = assetFileInfo.GetAbsoluteByteOffset(assetFile);
-            return assetFile.Reader.ReadBytes(Convert.ToInt32(assetFileInfo.ByteSize));
+            SetModifiedState(ModifiedState.Modified);
         }
     }
 }
