@@ -237,7 +237,7 @@ namespace GameObjectHierarchyTransfer
                     MemoryStream memoryStream = new MemoryStream();
                     BinaryWriter binaryWriter = new BinaryWriter(memoryStream);
                     binaryWriter.Write(GhFile.children[i], 0, 4);
-                    binaryWriter.Write(compPathID);
+                    binaryWriter.Write(gameObjectPathID);
                     int currentPosition = Convert.ToInt32(binaryWriter.BaseStream.Position);
                     binaryWriter.Write(GhFile.children[i], currentPosition, GhFile.children[i].Length - currentPosition);
                     byte[] newMbData = memoryStream.ToArray();
