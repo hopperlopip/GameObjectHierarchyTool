@@ -132,6 +132,10 @@ namespace GameObjectHierarchyTransfer
                 return;
             }
             assetsPath = openAssetsDialog.FileName;
+            if (assetsFile != null)
+            {
+                manager.UnloadAll();
+            }
             LoadAssetsFile(assetsPath);
             SetModifiedState(ModifiedState.Saved);
         }
@@ -217,15 +221,21 @@ namespace GameObjectHierarchyTransfer
             var components = gameObjectBase["m_Component.Array"];
             components.Children.Clear();
             assetsFile.Metadata.AddAssetInfo(gameObjectInfo);
-            /*for (int i = 0; i < GhFile.children.Count; i++)
+            for (int i = 0; i < GhFile.children.Count; i++)
             {
                 int compPathID = assetsFile.AssetInfos.Count + 1;
                 var compInfo = AssetFileInfo.Create(assetsFile, compPathID, GhFile.childrenTypeIDs[i], manager.ClassDatabase, false);
                 compInfo.SetNewData(GhFile.children[i]);
                 var compBase = manager.GetBaseField(fileInstance, compInfo);
+                compBase["m_GameObject.m_PathID"].AsLong = gameObjectPathID;
+                compInfo.SetNewData(compBase);
                 assetsFile.Metadata.AddAssetInfo(compInfo);
-                components.Children.Add(compBase);
-            }*/
+
+                var newArrayItem = ValueBuilder.DefaultValueFieldFromArrayTemplate(components);
+                newArrayItem["component.m_FileID"].AsInt = 0;
+                newArrayItem["component.m_PathID"].AsLong = compPathID;
+                components.Children.Add(newArrayItem);
+            }
             gameObjectInfo.SetNewData(gameObjectBase);
             UpdateAssetsFileList();
             SetModifiedState(ModifiedState.Modified);
