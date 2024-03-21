@@ -40,6 +40,10 @@
             saveToolStripMenuItem = new ToolStripMenuItem();
             saveAsToolStripMenuItem = new ToolStripMenuItem();
             exitToolStripMenuItem = new ToolStripMenuItem();
+            openAssetsDialog = new OpenFileDialog();
+            saveAssetsDialog = new SaveFileDialog();
+            saveGhDialog = new SaveFileDialog();
+            openGhDialog = new OpenFileDialog();
             ((System.ComponentModel.ISupportInitialize)gameObjectGridView).BeginInit();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
@@ -52,6 +56,7 @@
             // 
             gameObjectGridView.AllowUserToAddRows = false;
             gameObjectGridView.AllowUserToDeleteRows = false;
+            gameObjectGridView.AllowUserToResizeRows = false;
             gameObjectGridView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             gameObjectGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             gameObjectGridView.BackgroundColor = SystemColors.Control;
@@ -109,6 +114,7 @@
             exportButton.TabIndex = 0;
             exportButton.Text = "Export Hierarchy";
             exportButton.UseVisualStyleBackColor = true;
+            exportButton.Click += exportButton_Click;
             // 
             // importButton
             // 
@@ -119,6 +125,7 @@
             importButton.TabIndex = 0;
             importButton.Text = "Import Hierarchy";
             importButton.UseVisualStyleBackColor = true;
+            importButton.Click += importButton_Click;
             // 
             // menuStrip1
             // 
@@ -140,26 +147,50 @@
             // openToolStripMenuItem
             // 
             openToolStripMenuItem.Name = "openToolStripMenuItem";
-            openToolStripMenuItem.Size = new Size(224, 26);
+            openToolStripMenuItem.Size = new Size(152, 26);
             openToolStripMenuItem.Text = "Open";
+            openToolStripMenuItem.Click += openToolStripMenuItem_Click;
             // 
             // saveToolStripMenuItem
             // 
             saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            saveToolStripMenuItem.Size = new Size(224, 26);
+            saveToolStripMenuItem.Size = new Size(152, 26);
             saveToolStripMenuItem.Text = "Save";
+            saveToolStripMenuItem.Click += saveToolStripMenuItem_Click;
             // 
             // saveAsToolStripMenuItem
             // 
             saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            saveAsToolStripMenuItem.Size = new Size(224, 26);
+            saveAsToolStripMenuItem.Size = new Size(152, 26);
             saveAsToolStripMenuItem.Text = "Save As...";
+            saveAsToolStripMenuItem.Click += saveAsToolStripMenuItem_Click;
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(224, 26);
+            exitToolStripMenuItem.Size = new Size(152, 26);
             exitToolStripMenuItem.Text = "Exit";
+            exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
+            // 
+            // openAssetsDialog
+            // 
+            openAssetsDialog.DefaultExt = "assets";
+            openAssetsDialog.Filter = "Assets file|*.assets|Level file|level*";
+            // 
+            // saveAssetsDialog
+            // 
+            saveAssetsDialog.DefaultExt = "assets";
+            saveAssetsDialog.Filter = "Assets file|*.assets|Level file|level*";
+            // 
+            // saveGhDialog
+            // 
+            saveGhDialog.DefaultExt = "gh";
+            saveGhDialog.Filter = "GameObject Hierarchy file|*.gh";
+            // 
+            // openGhDialog
+            // 
+            openGhDialog.DefaultExt = "gh";
+            openGhDialog.Filter = "GameObject Hierarchy file|*.gh";
             // 
             // MainWindow
             // 
@@ -172,6 +203,7 @@
             MainMenuStrip = menuStrip1;
             Name = "MainWindow";
             ShowIcon = false;
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "GameObjectHierarchyTransfer";
             ((System.ComponentModel.ISupportInitialize)gameObjectGridView).EndInit();
             splitContainer1.Panel1.ResumeLayout(false);
@@ -198,5 +230,9 @@
         private ToolStripMenuItem saveToolStripMenuItem;
         private ToolStripMenuItem saveAsToolStripMenuItem;
         private ToolStripMenuItem exitToolStripMenuItem;
+        private OpenFileDialog openAssetsDialog;
+        private SaveFileDialog saveAssetsDialog;
+        private SaveFileDialog saveGhDialog;
+        private OpenFileDialog openGhDialog;
     }
 }
