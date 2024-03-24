@@ -8,14 +8,17 @@ namespace GameObjectHierarchyTransfer
 {
     internal class GameObject_Hierarchy_File
     {
-        public byte[] parentGameObject = new byte[0];
-        public List<int> childrenTypeIDs = new();
-        public List<byte[]> children = new();
+        public byte[] GameObject = new byte[0];
+        public List<int> componentsTypeIDs = new();
+        public List<byte[]> components = new();
+        public GameObject_Hierarchy_File? father = null;
+        public List<GameObject_Hierarchy_File> children = new();
+        public long pathID;
 
-        public GameObject_Hierarchy_File(byte[] parentGameObject, List<byte[]> children)
+        public GameObject_Hierarchy_File(byte[] GameObject, List<byte[]> components)
         {
-            this.parentGameObject = parentGameObject;
-            this.children = children;
+            this.GameObject = GameObject;
+            this.components = components;
         }
 
         public GameObject_Hierarchy_File() { }

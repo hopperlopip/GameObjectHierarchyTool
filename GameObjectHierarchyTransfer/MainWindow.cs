@@ -119,8 +119,11 @@ namespace GameObjectHierarchyTransfer
                 if (gameObjectGridView.Rows.Count != 0)
                 {
                     gameObjectGridView.Rows[savedSelectedRowIndex].Selected = true;
-                    PropertyInfo verticalOffset = gameObjectGridView.GetType().GetProperty("VerticalOffset", BindingFlags.NonPublic | BindingFlags.Instance);
-                    verticalOffset.SetValue(this.gameObjectGridView, savedScroll, null);
+                    PropertyInfo? verticalOffset = gameObjectGridView.GetType().GetProperty("VerticalOffset", BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (verticalOffset != null && savedScroll != 0)
+                    {
+                        verticalOffset.SetValue(this.gameObjectGridView, savedScroll, null);
+                    }
                 }
             }
         }
@@ -180,16 +183,35 @@ namespace GameObjectHierarchyTransfer
             long gameObjectPathID = Convert.ToInt64(gameObjectGridView.SelectedRows[0].Cells[1].Value);
             AssetTypeValueField gameObjectBase = manager.GetBaseField(fileInstance, gameObjectPathID);
             GameObject_Hierarchy_File GhFile = new GameObject_Hierarchy_File();
-            GhFile.parentGameObject = gameObjectBase.WriteToByteArray();
+            GhFile.GameObject = gameObjectBase.WriteToByteArray();
             var components = gameObjectBase["m_Component.Array"];
             for (int i = 0; i < components.Children.Count; i++)
             {
                 var data = components.Children[i];
                 var componentPointer = data["component"];
                 var componentExtInfo = manager.GetExtAsset(fileInstance, componentPointer);
-                var componentType = componentExtInfo.info.TypeId;
-                GhFile.childrenTypeIDs.Add(componentType);
-                GhFile.children.Add(GetAssetsArray(assetsFile, componentExtInfo.info)); // Don't use "componentExtInfo.baseField.WriteToByteArray()" because it corrupts MonoBehaviours
+                int componentType = componentExtInfo.info.TypeId;
+                GhFile.componentsTypeIDs.Add(componentType);
+                GhFile.components.Add(GetAssetsArray(assetsFile, componentExtInfo.info)); // Don't use "componentExtInfo.baseField.WriteToByteArray()" because it corrupts MonoBehaviours
+
+                /*if (componentType == (int)AssetClassID.Transform || componentType == (int)AssetClassID.RectTransform)
+                {
+                    if (GhFile.father == null)
+                    {
+                        componentExtInfo.baseField["m_Father.m_PathID"].AsLong = 0;
+                    }
+                    var children = componentExtInfo.baseField["m_Component.Array"];
+                    for (int j = 0; j < children.Children.Count; j++)
+                    {
+                        var childData = children.Children[j];
+                        var childPointer = data["component"];
+                        var childExtInfo = manager.GetExtAsset(fileInstance, componentPointer);
+                        GameObject_Hierarchy_File childGh = new();
+                        childGh.father = GhFile;
+                        childGh.GameObject = childExtInfo.baseField.WriteToByteArray();
+                        GhFile.children.Add(childGh);
+                    }
+                }*/
             }
             GH_Worker worker = new();
             saveGhDialog.FileName = $"{gameObjectGridView.SelectedRows[0].Cells[0].Value}";
@@ -199,6 +221,14 @@ namespace GameObjectHierarchyTransfer
             }
             File.WriteAllBytes(saveGhDialog.FileName, worker.Serialize(GhFile));
         }
+
+        /*private GameObject_Hierarchy_File SetValuesInGh(GameObject_Hierarchy_File GhFile)
+        {
+            if (GhFile.father != null)
+            {
+                GhFile.GameObject = GhFile.fa
+            }
+        }*/
 
         private void importButton_Click(object sender, EventArgs e)
         {
@@ -215,18 +245,18 @@ namespace GameObjectHierarchyTransfer
             GameObject_Hierarchy_File GhFile = worker.Deserialize(GhFileBytes);
             int gameObjectPathID = assetsFile.AssetInfos.Count + 1;
             var gameObjectInfo = AssetFileInfo.Create(assetsFile, gameObjectPathID, (int)AssetClassID.GameObject, manager.ClassDatabase, false);
-            gameObjectInfo.SetNewData(GhFile.parentGameObject);
+            gameObjectInfo.SetNewData(GhFile.GameObject);
             var gameObjectBase = manager.GetBaseField(fileInstance, gameObjectInfo);
             var components = gameObjectBase["m_Component.Array"];
             components.Children.Clear();
             assetsFile.Metadata.AddAssetInfo(gameObjectInfo);
-            for (int i = 0; i < GhFile.children.Count; i++)
+            for (int i = 0; i < GhFile.components.Count; i++)
             {
                 int compPathID = assetsFile.AssetInfos.Count + 1;
-                var compInfo = AssetFileInfo.Create(assetsFile, compPathID, GhFile.childrenTypeIDs[i], manager.ClassDatabase, false);
+                var compInfo = AssetFileInfo.Create(assetsFile, compPathID, GhFile.componentsTypeIDs[i], manager.ClassDatabase, false);
                 if (compInfo.TypeId != (int)AssetClassID.MonoBehaviour)
                 {
-                    compInfo.SetNewData(GhFile.children[i]);
+                    compInfo.SetNewData(GhFile.components[i]);
                     var compBase = manager.GetBaseField(fileInstance, compInfo);
                     compBase["m_GameObject.m_PathID"].AsLong = gameObjectPathID;
                     compInfo.SetNewData(compBase);
@@ -236,10 +266,10 @@ namespace GameObjectHierarchyTransfer
                 {
                     MemoryStream memoryStream = new MemoryStream();
                     BinaryWriter binaryWriter = new BinaryWriter(memoryStream);
-                    binaryWriter.Write(GhFile.children[i], 0, 4);
+                    binaryWriter.Write(GhFile.components[i], 0, 4);
                     binaryWriter.Write(gameObjectPathID);
                     int currentPosition = Convert.ToInt32(binaryWriter.BaseStream.Position);
-                    binaryWriter.Write(GhFile.children[i], currentPosition, GhFile.children[i].Length - currentPosition);
+                    binaryWriter.Write(GhFile.components[i], currentPosition, GhFile.components[i].Length - currentPosition);
                     byte[] newMbData = memoryStream.ToArray();
 
                     compInfo.SetNewData(newMbData);

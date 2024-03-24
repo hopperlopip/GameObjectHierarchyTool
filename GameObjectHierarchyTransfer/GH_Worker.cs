@@ -17,15 +17,15 @@ namespace GameObjectHierarchyTransfer
             AssetsFileWriter writer = new AssetsFileWriter(stream);
             writer.Write(FILE_SIGNATURE);
             writer.Align();
-            writer.Write(file.parentGameObject.Length);
-            writer.Write(file.parentGameObject);
+            writer.Write(file.GameObject.Length);
+            writer.Write(file.GameObject);
             writer.Align();
-            writer.Write(file.children.Count);
-            for (int i = 0;  i < file.children.Count; i++)
+            writer.Write(file.components.Count);
+            for (int i = 0;  i < file.components.Count; i++)
             {
-                writer.Write(file.childrenTypeIDs[i]);
-                writer.Write(file.children[i].Length);
-                writer.Write(file.children[i]);
+                writer.Write(file.componentsTypeIDs[i]);
+                writer.Write(file.components[i].Length);
+                writer.Write(file.components[i]);
                 writer.Align();
             }
             return stream.ToArray();
@@ -43,14 +43,14 @@ namespace GameObjectHierarchyTransfer
             }
             reader.Align();
             int lengthOfParent = reader.ReadInt32();
-            file.parentGameObject = reader.ReadBytes(lengthOfParent);
+            file.GameObject = reader.ReadBytes(lengthOfParent);
             reader.Align();
             int childrenCount = reader.ReadInt32();
             for (int i = 0; i < childrenCount; i++)
             {
-                file.childrenTypeIDs.Add(reader.ReadInt32());
+                file.componentsTypeIDs.Add(reader.ReadInt32());
                 int componentLength = reader.ReadInt32();
-                file.children.Add(reader.ReadBytes(componentLength));
+                file.components.Add(reader.ReadBytes(componentLength));
                 reader.Align();
             }
             return file;
