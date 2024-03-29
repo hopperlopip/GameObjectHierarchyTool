@@ -10,6 +10,7 @@ namespace GameObjectHierarchyTransfer
     {
         public byte[] GameObject = new byte[0];
         public long pathID;
+        public long transformPathID;
 
         public List<int> componentsTypeIDs = new();
         public List<byte[]> components = new();

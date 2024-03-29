@@ -297,7 +297,8 @@ namespace GameObjectHierarchyTransfer
 
                     if (compInfo.TypeId == (int)AssetClassID.Transform || compInfo.TypeId == (int)AssetClassID.RectTransform)
                     {
-                        long childrenTransformPathID = compInfo.PathId;
+                        long transformPathID = compInfo.PathId;
+                        GhFile.transformPathID = transformPathID;
                         compBase["m_Father.m_PathID"].AsLong = 0;
                         var childrenTransform = compBase["m_Children.Array"];
                         childrenTransform.Children.Clear();
@@ -310,21 +311,11 @@ namespace GameObjectHierarchyTransfer
 
                             var newChildrenArrayItem = ValueBuilder.DefaultValueFieldFromArrayTemplate(childrenParentTransform);
                             newChildrenArrayItem["m_FileID"].AsInt = 0;
-                            newChildrenArrayItem["m_PathID"].AsLong = childrenTransformPathID;
+                            newChildrenArrayItem["m_PathID"].AsLong = transformPathID;
                             childrenParentTransform.Children.Add(newChildrenArrayItem);
 
                             parentTransformExtInfo.info.SetNewData(parentTransformBaseField);
                         }
-
-                        /*var childrenTransform = compBase["m_Children.Array"];
-                        childrenTransform.Children.Clear();
-                        for (int j = 0; j < childrenPathID.Length; j++)
-                        {
-                            var newChildrenArrayItem = ValueBuilder.DefaultValueFieldFromArrayTemplate(childrenTransform);
-                            newChildrenArrayItem["m_FileID"].AsInt = 0;
-                            newChildrenArrayItem["m_PathID"].AsLong = childrenPathID[j] + 1;
-                            childrenTransform.Children.Add(newChildrenArrayItem);
-                        }*/
                     }
 
                     compInfo.SetNewData(compBase);
@@ -344,7 +335,7 @@ namespace GameObjectHierarchyTransfer
             for (int i = 0; i < GhFile.children.Count; i++)
             {
                 long fatherPathID = GhFile.pathID;
-                long fatherTransformPathID = fatherPathID + 1;
+                long fatherTransformPathID = GhFile.transformPathID;
 
                 ImportGhFileChildren(GhFile.children[i], fatherTransformPathID);
             }
