@@ -70,7 +70,7 @@
             gameObjectGridView.RowHeadersWidth = 51;
             gameObjectGridView.RowTemplate.Height = 29;
             gameObjectGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            gameObjectGridView.Size = new Size(752, 399);
+            gameObjectGridView.Size = new Size(752, 392);
             gameObjectGridView.TabIndex = 0;
             // 
             // NameColumn
@@ -91,7 +91,7 @@
             // 
             splitContainer1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             splitContainer1.IsSplitterFixed = true;
-            splitContainer1.Location = new Point(12, 432);
+            splitContainer1.Location = new Point(12, 425);
             splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -194,7 +194,7 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(776, 500);
+            ClientSize = new Size(776, 493);
             Controls.Add(splitContainer1);
             Controls.Add(gameObjectGridView);
             Controls.Add(menuStrip1);

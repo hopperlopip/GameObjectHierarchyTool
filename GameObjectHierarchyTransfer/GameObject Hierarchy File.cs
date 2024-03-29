@@ -9,11 +9,14 @@ namespace GameObjectHierarchyTransfer
     internal class GameObject_Hierarchy_File
     {
         public byte[] GameObject = new byte[0];
+        public long pathID;
+
         public List<int> componentsTypeIDs = new();
         public List<byte[]> components = new();
+
         public GameObject_Hierarchy_File? father = null;
+        public List<long> childrenPathIDs = new();
         public List<GameObject_Hierarchy_File> children = new();
-        public long pathID;
 
         public GameObject_Hierarchy_File(byte[] GameObject, List<byte[]> components)
         {
