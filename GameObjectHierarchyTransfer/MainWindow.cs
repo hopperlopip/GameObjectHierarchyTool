@@ -254,7 +254,6 @@ namespace GameObjectHierarchyTransfer
             }
             byte[] GhFileBytes = File.ReadAllBytes(openGhDialog.FileName);
             GH_Worker worker = new();
-            //GameObject_Hierarchy_File GhFile = worker.DeserializeGameObject(GhFileBytes);
             GameObject_Hierarchy_File GhFile = worker.DeserializeAll(GhFileBytes);
             ImportGhFileChildren(GhFile, 0);
 
