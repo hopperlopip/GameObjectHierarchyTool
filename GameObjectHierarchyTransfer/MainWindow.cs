@@ -12,6 +12,7 @@ namespace GameObjectHierarchyTransfer
         string initFormTitle;
 
         const string ERROR_TITLE = "Error";
+        const string WARNING_TITLE = "Warning";
         const string QUESTION_TITLE = "Question";
 
         AssetsManager manager = new AssetsManager();
@@ -255,10 +256,42 @@ namespace GameObjectHierarchyTransfer
             byte[] GhFileBytes = File.ReadAllBytes(openGhDialog.FileName);
             GH_Worker worker = new();
             GameObject_Hierarchy_File GhFile = worker.DeserializeAll(GhFileBytes);
-            ImportGhFileChildren(GhFile, 0);
+
+            if (MessageBox.Show("Do you want to put your hierarchy into selected GameObject?", QUESTION_TITLE, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                long gameObjectPathID = Convert.ToInt64(gameObjectGridView.SelectedRows[0].Cells[1].Value);
+                long transformPathID = GetTransformPathIdFromGameObjectPathId(gameObjectPathID);
+
+                ImportGhFileChildren(GhFile, transformPathID);
+            }
+            else
+            {
+                ImportGhFileChildren(GhFile, 0);
+            }
 
             UpdateAssetsFileList();
             SetModifiedState(ModifiedState.Modified);
+        }
+
+        private long GetTransformPathIdFromGameObjectPathId(long gameObjectPathId)
+        {
+            var gameObjectInfo = assetsFile.GetAssetInfo(gameObjectPathId);
+            var gameObjectBase = manager.GetBaseField(fileInstance, gameObjectInfo);
+
+            var components = gameObjectBase["m_Component.Array"];
+            for (int i = 0; i < components.Children.Count; i++)
+            {
+                var componentData = components.Children[i];
+                var componentPointer = componentData["component"];
+                var componentExtInfo = manager.GetExtAsset(fileInstance, componentPointer);
+                int componentType = componentExtInfo.info.TypeId;
+                long componentPathId = componentExtInfo.info.PathId;
+                if (componentType == (int)AssetClassID.Transform || componentType == (int)AssetClassID.RectTransform)
+                {
+                    return componentPathId;
+                }
+            }
+            return 0;
         }
 
         private void ImportFromGhFile(GameObject_Hierarchy_File GhFile, long parentTransformPathID)
