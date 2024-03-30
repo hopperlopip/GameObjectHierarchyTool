@@ -172,6 +172,7 @@ namespace GameObjectHierarchyTransfer
                 return;
             }
             SaveAssetsFile(assetsFile, saveAssetsDialog.FileName);
+            assetsPath = saveAssetsDialog.FileName;
             SetModifiedState(ModifiedState.Saved);
         }
 
