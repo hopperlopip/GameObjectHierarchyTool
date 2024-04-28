@@ -20,13 +20,26 @@ namespace GameObjectHierarchyTransfer
         AssetsFile assetsFile;
         string assetsPath;
         GameObjectHelper gameObjectHelper;
+        bool dataGridLoaded = false;
 
         public MainWindow()
         {
             InitializeComponent();
-            Text = string.Format(Text, Application.ProductVersion);
             initFormTitle = Text;
             FormClosing += MainWindow_FormClosing;
+            gameObjectGridView.CellValueChanged += GameObjectGridView_CellValueChanged;
+        }
+
+        private void GameObjectGridView_CellValueChanged(object? sender, DataGridViewCellEventArgs e)
+        {
+            if (!dataGridLoaded)
+            {
+                return;
+            }
+            long pathId = Convert.ToInt64(gameObjectGridView.SelectedRows[0].Cells[1].Value);
+            string newName = $"{gameObjectGridView.SelectedRows[0].Cells[0].Value}";
+            gameObjectHelper.RenameGameObject(pathId, newName);
+            SetModifiedState(ModifiedState.Modified);
         }
 
         private void MainWindow_FormClosing(object? sender, FormClosingEventArgs e)
@@ -102,6 +115,7 @@ namespace GameObjectHierarchyTransfer
         {
             if (assetsFile != null)
             {
+                dataGridLoaded = false;
                 int savedSelectedRowIndex = 0;
                 int savedScroll = gameObjectGridView.VerticalScrollingOffset;
                 if (gameObjectGridView.SelectedRows.Count != 0)
@@ -113,9 +127,8 @@ namespace GameObjectHierarchyTransfer
                 for (int i = 0; i < gameObjectInfos.Count; i++)
                 {
                     AssetFileInfo gameObjectInfo = gameObjectInfos[i];
-                    AssetTypeValueField gameObjectBase = manager.GetBaseField(fileInstance, gameObjectInfo);
                     gameObjectGridView.Rows.Add();
-                    gameObjectGridView.Rows[i].Cells[0].Value = gameObjectBase["m_Name"].AsString;
+                    gameObjectGridView.Rows[i].Cells[0].Value = gameObjectHelper.GetGameObjectName(gameObjectInfo.PathId);
                     gameObjectGridView.Rows[i].Cells[1].Value = gameObjectInfo.PathId;
                 }
                 if (gameObjectGridView.Rows.Count != 0)
@@ -127,6 +140,7 @@ namespace GameObjectHierarchyTransfer
                         verticalOffset.SetValue(this.gameObjectGridView, savedScroll, null);
                     }
                 }
+                dataGridLoaded = true;
             }
         }
 

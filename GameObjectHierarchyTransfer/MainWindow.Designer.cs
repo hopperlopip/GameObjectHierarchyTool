@@ -28,15 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            TreeNode treeNode1 = new TreeNode("Узел5");
-            TreeNode treeNode2 = new TreeNode("Узел4", new TreeNode[] { treeNode1 });
-            TreeNode treeNode3 = new TreeNode("Узел2", new TreeNode[] { treeNode2 });
-            TreeNode treeNode4 = new TreeNode("Узел3");
-            TreeNode treeNode5 = new TreeNode("Узел0", new TreeNode[] { treeNode3, treeNode4 });
-            TreeNode treeNode6 = new TreeNode("Узел1");
             gameObjectGridView = new DataGridView();
-            NameColumn = new DataGridViewTextBoxColumn();
-            PathIDColumn = new DataGridViewTextBoxColumn();
             splitContainer1 = new SplitContainer();
             exportButton = new Button();
             importButton = new Button();
@@ -50,7 +42,8 @@
             saveAssetsDialog = new SaveFileDialog();
             saveGhDialog = new SaveFileDialog();
             openGhDialog = new OpenFileDialog();
-            treeView1 = new TreeView();
+            NameColumn = new DataGridViewTextBoxColumn();
+            PathIDColumn = new DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)gameObjectGridView).BeginInit();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
@@ -72,27 +65,12 @@
             gameObjectGridView.Location = new Point(12, 27);
             gameObjectGridView.MultiSelect = false;
             gameObjectGridView.Name = "gameObjectGridView";
-            gameObjectGridView.ReadOnly = true;
             gameObjectGridView.RowHeadersVisible = false;
             gameObjectGridView.RowHeadersWidth = 51;
             gameObjectGridView.RowTemplate.Height = 29;
             gameObjectGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             gameObjectGridView.Size = new Size(752, 392);
             gameObjectGridView.TabIndex = 0;
-            // 
-            // NameColumn
-            // 
-            NameColumn.HeaderText = "Name";
-            NameColumn.MinimumWidth = 6;
-            NameColumn.Name = "NameColumn";
-            NameColumn.ReadOnly = true;
-            // 
-            // PathIDColumn
-            // 
-            PathIDColumn.HeaderText = "PathID";
-            PathIDColumn.MinimumWidth = 6;
-            PathIDColumn.Name = "PathIDColumn";
-            PathIDColumn.ReadOnly = true;
             // 
             // splitContainer1
             // 
@@ -197,37 +175,24 @@
             openGhDialog.DefaultExt = "gh";
             openGhDialog.Filter = "GameObject Hierarchy file|*.gh";
             // 
-            // treeView1
+            // NameColumn
             // 
-            treeView1.AllowDrop = true;
-            treeView1.FullRowSelect = true;
-            treeView1.HotTracking = true;
-            treeView1.Location = new Point(459, 105);
-            treeView1.Name = "treeView1";
-            treeNode1.Name = "Узел5";
-            treeNode1.Text = "Узел5";
-            treeNode2.Name = "Узел4";
-            treeNode2.Text = "Узел4";
-            treeNode3.Name = "Узел2";
-            treeNode3.Text = "Узел2";
-            treeNode4.Name = "Узел3";
-            treeNode4.Text = "Узел3";
-            treeNode5.Checked = true;
-            treeNode5.Name = "Узел0";
-            treeNode5.Text = "Узел0";
-            treeNode6.Name = "Узел1";
-            treeNode6.Text = "Узел1";
-            treeView1.Nodes.AddRange(new TreeNode[] { treeNode5, treeNode6 });
-            treeView1.Size = new Size(272, 244);
-            treeView1.TabIndex = 3;
-            treeView1.Visible = false;
+            NameColumn.HeaderText = "Name";
+            NameColumn.MinimumWidth = 6;
+            NameColumn.Name = "NameColumn";
+            // 
+            // PathIDColumn
+            // 
+            PathIDColumn.HeaderText = "PathID";
+            PathIDColumn.MinimumWidth = 6;
+            PathIDColumn.Name = "PathIDColumn";
+            PathIDColumn.ReadOnly = true;
             // 
             // MainWindow
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(776, 493);
-            Controls.Add(treeView1);
             Controls.Add(splitContainer1);
             Controls.Add(gameObjectGridView);
             Controls.Add(menuStrip1);
@@ -250,8 +215,6 @@
         #endregion
 
         private DataGridView gameObjectGridView;
-        private DataGridViewTextBoxColumn NameColumn;
-        private DataGridViewTextBoxColumn PathIDColumn;
         private SplitContainer splitContainer1;
         private Button exportButton;
         private Button importButton;
@@ -265,6 +228,7 @@
         private SaveFileDialog saveAssetsDialog;
         private SaveFileDialog saveGhDialog;
         private OpenFileDialog openGhDialog;
-        private TreeView treeView1;
+        private DataGridViewTextBoxColumn NameColumn;
+        private DataGridViewTextBoxColumn PathIDColumn;
     }
 }
