@@ -6,7 +6,6 @@ namespace GameObjectHierarchyTransfer
     {
         public GameObject gameObject = new();
         public List<GameObjectHierarchy> children = new();
-        //public long fatherPathId;
 
         public GameObjectHierarchy(GameObject gameObject, List<GameObjectHierarchy> children)
         {
