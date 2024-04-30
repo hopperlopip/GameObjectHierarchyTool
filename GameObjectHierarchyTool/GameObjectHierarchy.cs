@@ -1,6 +1,6 @@
 ﻿using AssetsTools.NET;
 
-namespace GameObjectHierarchyTransfer
+namespace GameObjectHierarchyTool
 {
     public class GameObjectHierarchy
     {

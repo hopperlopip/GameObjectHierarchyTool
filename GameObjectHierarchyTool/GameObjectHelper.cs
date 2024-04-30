@@ -2,7 +2,7 @@
 using AssetsTools.NET;
 using System.IO;
 
-namespace GameObjectHierarchyTransfer
+namespace GameObjectHierarchyTool
 {
     public class GameObjectHelper
     {
@@ -21,6 +21,8 @@ namespace GameObjectHierarchyTransfer
         {
             GameObject gameObject = new();
             var gameObjectBase = manager.GetBaseField(fileInstance, pathId);
+            gameObject.name = gameObjectBase["m_Name"].AsString;
+            gameObject.active = gameObjectBase["m_IsActive"].AsBool;
             gameObject.data = gameObjectBase.WriteToByteArray();
             gameObject.pathID = pathId;
             var components = gameObjectBase["m_Component.Array"];
@@ -41,11 +43,6 @@ namespace GameObjectHierarchyTransfer
                     componentData = componentExtInfo.baseField.WriteToByteArray();
                 }
                 gameObject.components.Add(new Component(componentType, componentData));
-
-                if (componentType == (int)AssetClassID.Transform || componentType == (int)AssetClassID.RectTransform)
-                {
-                    gameObject.transformPathID = componentExtInfo.info.PathId;
-                }
             }
 
             return gameObject;
@@ -53,7 +50,7 @@ namespace GameObjectHierarchyTransfer
 
         public List<GameObjectHierarchy> GetChildren(GameObject gameObject)
         {
-            var transformBase = manager.GetBaseField(fileInstance, gameObject.transformPathID);
+            var transformBase = manager.GetBaseField(fileInstance, GetTransformPathId(gameObject.pathID));
             var childrenTransform = transformBase["m_Children.Array"];
             List<GameObjectHierarchy> children = new();
             for (int i = 0; i < childrenTransform.Children.Count; i++)
@@ -82,6 +79,15 @@ namespace GameObjectHierarchyTransfer
             return childrenPathIds;
         }
 
+        public long GetFatherPathId(long gameObjectPathId)
+        {
+            long transformPathId = GetTransformPathId(gameObjectPathId);
+            var transformBase = manager.GetBaseField(fileInstance, transformPathId);
+            long fatherTransformPathId = transformBase["m_Father.m_PathID"].AsLong;
+            long fatherPathId = GetGameObjectPathId(fatherTransformPathId);
+            return fatherPathId;
+        }
+
         public GameObjectHierarchy GetHierarchy(GameObject gameObject)
         {
             GameObjectHierarchy gameObjectHierarchy = new GameObjectHierarchy(gameObject, GetChildren(gameObject));
@@ -102,6 +108,8 @@ namespace GameObjectHierarchyTransfer
             var gameObjectInfo = AssetFileInfo.Create(assetsFile, gameObject.pathID, (int)AssetClassID.GameObject, manager.ClassDatabase, false);
             gameObjectInfo.SetNewData(gameObject.data);
             var gameObjectBase = manager.GetBaseField(fileInstance, gameObjectInfo);
+            gameObjectBase["m_Name"].AsString = gameObject.name;
+            gameObjectBase["m_IsActive"].AsBool = gameObject.active;
             var components = gameObjectBase["m_Component.Array"];
             components.Children.Clear();
             assetsFile.Metadata.AddAssetInfo(gameObjectInfo);
@@ -125,11 +133,6 @@ namespace GameObjectHierarchyTransfer
                 componentInfo.SetNewData(component.data);
                 assetsFile.Metadata.AddAssetInfo(componentInfo);
 
-                if (componentInfo.TypeId == (int)AssetClassID.Transform || componentInfo.TypeId == (int)AssetClassID.RectTransform)
-                {
-                    gameObject.transformPathID = componentInfo.PathId;
-                }
-
                 var newArrayItem = ValueBuilder.DefaultValueFieldFromArrayTemplate(components);
                 newArrayItem["component.m_FileID"].AsInt = 0;
                 newArrayItem["component.m_PathID"].AsLong = componentInfo.PathId;
@@ -141,21 +144,23 @@ namespace GameObjectHierarchyTransfer
         public void CreateHierarchy(GameObjectHierarchy gameObjectHierarchy, long fatherPathId)
         {
             CreateGameObject(gameObjectHierarchy.gameObject);
-            var transformBase = manager.GetBaseField(fileInstance, gameObjectHierarchy.gameObject.transformPathID);
+            var transformInfo = assetsFile.GetAssetInfo(GetTransformPathId(gameObjectHierarchy.gameObject.pathID));
+            var transformBase = manager.GetBaseField(fileInstance, transformInfo);
             transformBase["m_Father.m_PathID"].AsLong = GetTransformPathId(fatherPathId);
             var childrenTransform = transformBase["m_Children.Array"];
-            var newChildrenArrayItem = ValueBuilder.DefaultValueFieldFromArrayTemplate(childrenTransform);
             childrenTransform.Children.Clear();
 
             var children = gameObjectHierarchy.children;
             for (int i = 0; i < children.Count; i++)
             {
-                CreateHierarchy(children[i], gameObjectHierarchy.gameObject.pathID);
-                GameObject childGameObject = children[i].gameObject;
+                var newChildrenArrayItem = ValueBuilder.DefaultValueFieldFromArrayTemplate(childrenTransform);
+                GameObjectHierarchy child = children[i];
+                CreateHierarchy(child, gameObjectHierarchy.gameObject.pathID);
                 newChildrenArrayItem["m_FileID"].AsInt = 0;
-                newChildrenArrayItem["m_PathID"].AsLong = childGameObject.pathID;
+                newChildrenArrayItem["m_PathID"].AsLong = GetTransformPathId(child.gameObject.pathID);
                 childrenTransform.Children.Add(newChildrenArrayItem);
             }
+            transformInfo.SetNewData(transformBase);
         }
 
         public void RenameGameObject(long pathId, string newName)
@@ -172,12 +177,19 @@ namespace GameObjectHierarchyTransfer
             return gameObjectBase["m_Name"].AsString;
         }
 
-        public void ChangeActive(long pathId, bool active)
+        public void ChangeActiveState(long pathId, bool activeState)
         {
             var gameObjectInfo = assetsFile.GetAssetInfo(pathId);
             var gameObjectBase = manager.GetBaseField(fileInstance, gameObjectInfo);
-            gameObjectBase["m_IsActive"].AsBool = active;
+            gameObjectBase["m_IsActive"].AsBool = activeState;
             gameObjectInfo.SetNewData(gameObjectBase);
+        }
+
+        public bool GetActiveState(long pathId)
+        {
+            var gameObjectInfo = assetsFile.GetAssetInfo(pathId);
+            var gameObjectBase = manager.GetBaseField(fileInstance, gameObjectInfo);
+            return gameObjectBase["m_IsActive"].AsBool;
         }
 
         private static byte[] ChangeMonoBehaviourGameObjectPathId(byte[] data, long gameObjectPathID)

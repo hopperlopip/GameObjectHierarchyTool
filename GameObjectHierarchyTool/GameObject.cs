@@ -1,12 +1,13 @@
 ﻿using AssetsTools.NET;
 
-namespace GameObjectHierarchyTransfer
+namespace GameObjectHierarchyTool
 {
     public class GameObject
     {
+        public string name = string.Empty;
         public long pathID;
+        public bool active;
         public byte[] data = new byte[0];
-        public long transformPathID;
         public List<Component> components = new();
 
         public byte[] Serialize()
@@ -14,6 +15,10 @@ namespace GameObjectHierarchyTransfer
             MemoryStream stream = new MemoryStream();
             AssetsFileWriter writer = new AssetsFileWriter(stream);
 
+            writer.Write(name);
+            writer.Align();
+            writer.Write(active);
+            writer.Align();
             writer.Write(data.Length);
             writer.Write(data);
             writer.Align();
@@ -35,6 +40,10 @@ namespace GameObjectHierarchyTransfer
             MemoryStream stream = new MemoryStream(bytes);
             AssetsFileReader reader = new AssetsFileReader(stream);
 
+            gameObject.name = reader.ReadString();
+            reader.Align();
+            gameObject.active = reader.ReadBoolean();
+            reader.Align();
             int dataLength = reader.ReadInt32();
             gameObject.data = reader.ReadBytes(dataLength);
             reader.Align();

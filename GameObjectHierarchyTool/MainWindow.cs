@@ -3,8 +3,9 @@ using AssetsTools.NET;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
-namespace GameObjectHierarchyTransfer
+namespace GameObjectHierarchyTool
 {
     public partial class MainWindow : Form
     {
@@ -20,26 +21,28 @@ namespace GameObjectHierarchyTransfer
         AssetsFile assetsFile;
         string assetsPath;
         GameObjectHelper gameObjectHelper;
-        bool dataGridLoaded = false;
+        TreeNode contextMenuStripNode;
 
         public MainWindow()
         {
             InitializeComponent();
             initFormTitle = Text;
             FormClosing += MainWindow_FormClosing;
-            gameObjectGridView.CellValueChanged += GameObjectGridView_CellValueChanged;
+            gameObjectTreeView.AfterCheck += GameObjectTreeView_AfterCheck;
+            gameObjectTreeView.MouseUp += GameObjectTreeView_MouseUp;
         }
 
-        private void GameObjectGridView_CellValueChanged(object? sender, DataGridViewCellEventArgs e)
+        private void GameObjectTreeView_MouseUp(object? sender, MouseEventArgs e)
         {
-            if (!dataGridLoaded)
+            if (e.Button != MouseButtons.Right)
             {
                 return;
             }
-            long pathId = Convert.ToInt64(gameObjectGridView.SelectedRows[0].Cells[1].Value);
-            string newName = $"{gameObjectGridView.SelectedRows[0].Cells[0].Value}";
-            gameObjectHelper.RenameGameObject(pathId, newName);
-            SetModifiedState(ModifiedState.Modified);
+            var hitTest = gameObjectTreeView.HitTest(e.Location);
+            if (hitTest.Node != null)
+            {
+                contextMenuStripNode = hitTest.Node;
+            }
         }
 
         private void MainWindow_FormClosing(object? sender, FormClosingEventArgs e)
@@ -62,7 +65,6 @@ namespace GameObjectHierarchyTransfer
 
         private void LoadAssetsFile(string assetsPath)
         {
-            gameObjectGridView.Rows.Clear();
             manager.LoadClassPackage("classdata.tpk");
             try
             {
@@ -76,7 +78,50 @@ namespace GameObjectHierarchyTransfer
             assetsFile = fileInstance.file;
             gameObjectHelper = new GameObjectHelper(manager, fileInstance);
             manager.LoadClassDatabaseFromPackage(assetsFile.Metadata.UnityVersion);
-            UpdateAssetsFileList();
+            RebuildTreeView();
+        }
+
+        private void RebuildTreeView()
+        {
+            gameObjectTreeView.Nodes.Clear();
+            List<AssetFileInfo> gameObjectInfos = assetsFile.GetAssetsOfType(AssetClassID.GameObject);
+            List<long> rootGameObjectsPathIds = GetRootGameObjectPathIds(gameObjectInfos);
+            gameObjectTreeView.Nodes.AddRange(BuildNodeTree(rootGameObjectsPathIds).ToArray());
+        }
+
+        private List<TreeNode> BuildNodeTree(List<long> gameObjectPathIds)
+        {
+            List<TreeNode> nodeCollection = new();
+            for (int i = 0; i < gameObjectPathIds.Count; i++)
+            {
+                long gameObjectPathId = gameObjectPathIds[i];
+                string gameObjectName = gameObjectHelper.GetGameObjectName(gameObjectPathId);
+                TreeNode gameObjectNode = new TreeNode(gameObjectName);
+                gameObjectNode.ToolTipText = $"PathID: {gameObjectPathId}\r\nFatherPathID: {gameObjectHelper.GetFatherPathId(gameObjectPathId)}";
+                gameObjectNode.Tag = gameObjectPathId;
+                gameObjectNode.Checked = gameObjectHelper.GetActiveState(gameObjectPathId);
+                gameObjectNode.ContextMenuStrip = nodeMenuStrip;
+                nodeCollection.Add(gameObjectNode);
+
+                List<long> childrenPathIds = gameObjectHelper.GetChildrenPathIds(gameObjectPathId);
+                //MessageBox.Show(string.Join("\r\n", childrenPathIds));
+                gameObjectNode.Nodes.AddRange(BuildNodeTree(childrenPathIds).ToArray());
+            }
+            return nodeCollection;
+        }
+
+        private List<long> GetRootGameObjectPathIds(List<AssetFileInfo> gameObjectInfos)
+        {
+            List<long> rootGameObjectsPathIds = new();
+            for (int i = 0; i < gameObjectInfos.Count; i++)
+            {
+                long gameObjectPathId = gameObjectInfos[i].PathId;
+                if (gameObjectHelper.GetFatherPathId(gameObjectPathId) == 0)
+                {
+                    rootGameObjectsPathIds.Add(gameObjectPathId);
+                }
+            }
+            return rootGameObjectsPathIds;
         }
 
         private void SaveAssetsFile(AssetsFile assetsFile, string filePath)
@@ -108,39 +153,6 @@ namespace GameObjectHierarchyTransfer
             {
                 modified = false;
                 Text = initFormTitle + $" - {Path.GetFileName(assetsPath)}";
-            }
-        }
-
-        private void UpdateAssetsFileList()
-        {
-            if (assetsFile != null)
-            {
-                dataGridLoaded = false;
-                int savedSelectedRowIndex = 0;
-                int savedScroll = gameObjectGridView.VerticalScrollingOffset;
-                if (gameObjectGridView.SelectedRows.Count != 0)
-                {
-                    savedSelectedRowIndex = gameObjectGridView.SelectedRows[0].Index;
-                }
-                gameObjectGridView.Rows.Clear();
-                List<AssetFileInfo> gameObjectInfos = assetsFile.GetAssetsOfType(AssetClassID.GameObject);
-                for (int i = 0; i < gameObjectInfos.Count; i++)
-                {
-                    AssetFileInfo gameObjectInfo = gameObjectInfos[i];
-                    gameObjectGridView.Rows.Add();
-                    gameObjectGridView.Rows[i].Cells[0].Value = gameObjectHelper.GetGameObjectName(gameObjectInfo.PathId);
-                    gameObjectGridView.Rows[i].Cells[1].Value = gameObjectInfo.PathId;
-                }
-                if (gameObjectGridView.Rows.Count != 0)
-                {
-                    gameObjectGridView.Rows[savedSelectedRowIndex].Selected = true;
-                    PropertyInfo? verticalOffset = gameObjectGridView.GetType().GetProperty("VerticalOffset", BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (verticalOffset != null && savedScroll != 0)
-                    {
-                        verticalOffset.SetValue(this.gameObjectGridView, savedScroll, null);
-                    }
-                }
-                dataGridLoaded = true;
             }
         }
 
@@ -191,14 +203,10 @@ namespace GameObjectHierarchyTransfer
             SetModifiedState(ModifiedState.Saved);
         }
 
-        private void exportButton_Click(object sender, EventArgs e)
+        private void exportToFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (gameObjectGridView.Rows.Count == 0)
-            {
-                return;
-            }
-            long gameObjectPathID = Convert.ToInt64(gameObjectGridView.SelectedRows[0].Cells[1].Value);
-            string? nameOfGameObject = gameObjectGridView.SelectedRows[0].Cells[0].Value.ToString();
+            long gameObjectPathID = Convert.ToInt64(contextMenuStripNode.Tag);
+            string? nameOfGameObject = gameObjectHelper.GetGameObjectName(gameObjectPathID);
             if (nameOfGameObject == null)
             {
                 throw new Exception("Field of the GameObject name is null");
@@ -215,9 +223,20 @@ namespace GameObjectHierarchyTransfer
             File.WriteAllBytes(saveGhDialog.FileName, GameObjectHierarchyFile.Serialize(gameObjectHierarchy));
         }
 
-        private void importButton_Click(object sender, EventArgs e)
+        private void GameObjectTreeView_AfterCheck(object? sender, TreeViewEventArgs e)
         {
-            if (gameObjectGridView.Rows.Count == 0)
+            if (e.Node == null)
+            {
+                return;
+            }
+            long gameObjectPathId = Convert.ToInt64(e.Node.Tag);
+            gameObjectHelper.ChangeActiveState(gameObjectPathId, e.Node.Checked);
+            SetModifiedState(ModifiedState.Modified);
+        }
+
+        private void importToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (assetsFile == null)
             {
                 return;
             }
@@ -227,20 +246,19 @@ namespace GameObjectHierarchyTransfer
             }
             byte[] gameObjectHierarchyBytes = File.ReadAllBytes(openGhDialog.FileName);
             GameObjectHierarchy gameObjectHierarchy = GameObjectHierarchyFile.Deserialize(gameObjectHierarchyBytes);
-
-            if (MessageBox.Show("Do you want to put your hierarchy into selected GameObject?", QUESTION_TITLE, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-            {
-                long gameObjectPathID = Convert.ToInt64(gameObjectGridView.SelectedRows[0].Cells[1].Value);
-
-                gameObjectHelper.CreateHierarchy(gameObjectHierarchy, gameObjectPathID);
-            }
-            else
-            {
-                gameObjectHelper.CreateHierarchy(gameObjectHierarchy, 0);
-            }
-
-            UpdateAssetsFileList();
+            gameObjectHelper.CreateHierarchy(gameObjectHierarchy, 0);
             SetModifiedState(ModifiedState.Modified);
+            RebuildTreeView();
+        }
+
+        private void gHEditorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (openGhDialog.ShowDialog() == DialogResult.Cancel)
+            {
+                return;
+            }
+            GhEditorForm ghEditorForm = new GhEditorForm(openGhDialog.FileName);
+            ghEditorForm.Show();
         }
     }
 }

@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace GameObjectHierarchyTransfer
+namespace GameObjectHierarchyTool
 {
     public partial class NewNameMessageBox : Form
     {

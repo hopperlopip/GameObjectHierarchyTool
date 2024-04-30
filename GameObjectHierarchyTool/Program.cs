@@ -1,4 +1,4 @@
-namespace GameObjectHierarchyTransfer
+namespace GameObjectHierarchyTool
 {
     internal static class Program
     {
