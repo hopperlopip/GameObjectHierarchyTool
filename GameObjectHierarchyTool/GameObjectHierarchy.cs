@@ -5,6 +5,7 @@ namespace GameObjectHierarchyTool
     public class GameObjectHierarchy
     {
         public GameObject gameObject = new();
+        public GameObjectHierarchy? father;
         public List<GameObjectHierarchy> children = new();
 
         public GameObjectHierarchy(GameObject gameObject, List<GameObjectHierarchy> children)
@@ -28,9 +29,9 @@ namespace GameObjectHierarchyTool
 
             for (int i = 0; i < children.Count; i++)
             {
-                byte[] childrenBytes = children[i].Serialize();
-                writer.Write(childrenBytes.Length);
-                writer.Write(childrenBytes);
+                byte[] childBytes = children[i].Serialize();
+                writer.Write(childBytes.Length);
+                writer.Write(childBytes);
             }
 
             return stream.ToArray();
@@ -50,9 +51,10 @@ namespace GameObjectHierarchyTool
 
             for (int i = 0; i < childrenCount; i++)
             {
-                int childrenBytesLength = reader.ReadInt32();
-                byte[] childrenBytes = reader.ReadBytes(childrenBytesLength);
-                gameObjectHierarchy.children.Add(Deserialize(childrenBytes));
+                int childBytesLength = reader.ReadInt32();
+                byte[] childBytes = reader.ReadBytes(childBytesLength);
+                gameObjectHierarchy.children.Add(Deserialize(childBytes));
+                gameObjectHierarchy.children[i].father = gameObjectHierarchy;
             }
 
             return gameObjectHierarchy;

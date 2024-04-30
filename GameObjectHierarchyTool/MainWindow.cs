@@ -104,7 +104,6 @@ namespace GameObjectHierarchyTool
                 nodeCollection.Add(gameObjectNode);
 
                 List<long> childrenPathIds = gameObjectHelper.GetChildrenPathIds(gameObjectPathId);
-                //MessageBox.Show(string.Join("\r\n", childrenPathIds));
                 gameObjectNode.Nodes.AddRange(BuildNodeTree(childrenPathIds).ToArray());
             }
             return nodeCollection;
