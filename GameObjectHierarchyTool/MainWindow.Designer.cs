@@ -44,6 +44,7 @@
             gameObjectTreeView = new TreeView();
             nodeMenuStrip = new ContextMenuStrip(components);
             exportToFileToolStripMenuItem = new ToolStripMenuItem();
+            renameGameObjectToolStripMenuItem = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             nodeMenuStrip.SuspendLayout();
             SuspendLayout();
@@ -130,25 +131,33 @@
             gameObjectTreeView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             gameObjectTreeView.CheckBoxes = true;
             gameObjectTreeView.HideSelection = false;
+            gameObjectTreeView.LabelEdit = true;
             gameObjectTreeView.Location = new Point(12, 31);
             gameObjectTreeView.Name = "gameObjectTreeView";
-            gameObjectTreeView.ShowNodeToolTips = true;
             gameObjectTreeView.Size = new Size(843, 498);
             gameObjectTreeView.TabIndex = 3;
             // 
             // nodeMenuStrip
             // 
             nodeMenuStrip.ImageScalingSize = new Size(20, 20);
-            nodeMenuStrip.Items.AddRange(new ToolStripItem[] { exportToFileToolStripMenuItem });
+            nodeMenuStrip.Items.AddRange(new ToolStripItem[] { exportToFileToolStripMenuItem, renameGameObjectToolStripMenuItem });
             nodeMenuStrip.Name = "contextMenuStrip1";
-            nodeMenuStrip.Size = new Size(186, 28);
+            nodeMenuStrip.Size = new Size(244, 52);
             // 
             // exportToFileToolStripMenuItem
             // 
             exportToFileToolStripMenuItem.Name = "exportToFileToolStripMenuItem";
-            exportToFileToolStripMenuItem.Size = new Size(185, 24);
+            exportToFileToolStripMenuItem.Size = new Size(243, 24);
             exportToFileToolStripMenuItem.Text = "Export hierarchy";
             exportToFileToolStripMenuItem.Click += exportToFileToolStripMenuItem_Click;
+            // 
+            // renameGameObjectToolStripMenuItem
+            // 
+            renameGameObjectToolStripMenuItem.Name = "renameGameObjectToolStripMenuItem";
+            renameGameObjectToolStripMenuItem.ShortcutKeys = Keys.F2;
+            renameGameObjectToolStripMenuItem.Size = new Size(243, 24);
+            renameGameObjectToolStripMenuItem.Text = "Rename GameObject";
+            renameGameObjectToolStripMenuItem.Click += renameGameObjectToolStripMenuItem_Click;
             // 
             // MainWindow
             // 
@@ -185,5 +194,6 @@
         private ToolStripMenuItem exportToFileToolStripMenuItem;
         private ToolStripMenuItem importToolStripMenuItem;
         private ToolStripMenuItem gHEditorToolStripMenuItem;
+        private ToolStripMenuItem renameGameObjectToolStripMenuItem;
     }
 }

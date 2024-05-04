@@ -36,7 +36,18 @@ namespace GameObjectHierarchyTool
                 byte[] componentData;
                 if (componentType == (int)AssetClassID.MonoBehaviour)
                 {
-                    componentData = GetAssetBytes(assetsFile, componentExtInfo.info);
+                    if (!componentExtInfo.info.IsReplacerPreviewable)
+                    {
+                        // Workaround to get valid MonoBehaviour data for already existing GameObject
+                        componentData = GetAssetBytes(assetsFile, componentExtInfo.info);
+                    }
+                    else
+                    {
+                        // Workaround to get valid MonoBehaviour data for imported GameObject
+                        MemoryStream ms = new();
+                        componentExtInfo.info.Replacer.GetPreviewStream().CopyTo(ms);
+                        componentData = ms.ToArray();
+                    }
                 }
                 else
                 {
@@ -141,7 +152,7 @@ namespace GameObjectHierarchyTool
             gameObjectInfo.SetNewData(gameObjectBase);
         }
 
-        public void CreateHierarchy(GameObjectHierarchy gameObjectHierarchy, long fatherPathId)
+        public long CreateHierarchy(GameObjectHierarchy gameObjectHierarchy, long fatherPathId)
         {
             CreateGameObject(gameObjectHierarchy.gameObject);
             var transformInfo = assetsFile.GetAssetInfo(GetTransformPathId(gameObjectHierarchy.gameObject.pathID));
@@ -161,6 +172,7 @@ namespace GameObjectHierarchyTool
                 childrenTransform.Children.Add(newChildrenArrayItem);
             }
             transformInfo.SetNewData(transformBase);
+            return gameObjectHierarchy.gameObject.pathID;
         }
 
         public void RenameGameObject(long pathId, string newName)
@@ -215,7 +227,25 @@ namespace GameObjectHierarchyTool
             {
                 var componentData = components.Children[i];
                 var componentPointer = componentData["component"];
-                var componentExtInfo = manager.GetExtAsset(fileInstance, componentPointer);
+                var componentExtInfo = manager.GetExtAsset(fileInstance, componentPointer, true);
+                int componentType = componentExtInfo.info.TypeId;
+                long componentPathId = componentExtInfo.info.PathId;
+                if (componentType == (int)AssetClassID.Transform || componentType == (int)AssetClassID.RectTransform)
+                {
+                    return componentPathId;
+                }
+            }
+            return 0;
+        }
+
+        public long GetTransformPathId(AssetTypeValueField gameObjectBase)
+        {
+            var components = gameObjectBase["m_Component.Array"];
+            for (int i = 0; i < components.Children.Count; i++)
+            {
+                var componentData = components.Children[i];
+                var componentPointer = componentData["component"];
+                var componentExtInfo = manager.GetExtAsset(fileInstance, componentPointer, true);
                 int componentType = componentExtInfo.info.TypeId;
                 long componentPathId = componentExtInfo.info.PathId;
                 if (componentType == (int)AssetClassID.Transform || componentType == (int)AssetClassID.RectTransform)
@@ -233,6 +263,11 @@ namespace GameObjectHierarchyTool
                 return 0;
             }
             var transformBase = manager.GetBaseField(fileInstance, transformPathId);
+            return transformBase["m_GameObject.m_PathID"].AsLong;
+        }
+
+        public long GetGameObjectPathId(AssetTypeValueField transformBase)
+        {
             return transformBase["m_GameObject.m_PathID"].AsLong;
         }
 

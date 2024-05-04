@@ -18,15 +18,34 @@ namespace GameObjectHierarchyTool
         GameObjectHierarchy rootGameObjectHierarchy;
         TreeNode contextMenuStripNode;
 
-        public GhEditorForm(string ghFileName)
+        public GhEditorForm(string ghFileName, GameObjectHierarchy rootGameObjectHierarchy)
         {
             InitializeComponent();
             this.ghFileName = ghFileName;
-            SetRootGameObjectHierarchy();
+            this.rootGameObjectHierarchy = rootGameObjectHierarchy;
             RebuildTreeView();
             ghTreeView.AfterCheck += GhTreeView_AfterCheck;
             ghTreeView.MouseUp += GhTreeView_MouseUp;
             ghTreeView.AfterLabelEdit += GhTreeView_AfterLabelEdit;
+            ghTreeView.KeyUp += GhTreeView_KeyUp;
+        }
+
+        private void GhTreeView_KeyUp(object? sender, KeyEventArgs e)
+        {
+            TreeNode node = ghTreeView.SelectedNode;
+            if (node == null)
+            {
+                return;
+            }
+            switch (e.KeyCode)
+            {
+                case Keys.Delete:
+                    RemoveNode(node);
+                    break;
+                case Keys.F2:
+                    RenameNode(node);
+                    break;
+            }
         }
 
         private void GhTreeView_MouseUp(object? sender, MouseEventArgs e)
@@ -40,16 +59,6 @@ namespace GameObjectHierarchyTool
             {
                 contextMenuStripNode = hitTest.Node;
             }
-        }
-
-        private GameObjectHierarchy GetGameObjectHierarchy(string ghFileName)
-        {
-            return GameObjectHierarchyFile.Deserialize(File.ReadAllBytes(ghFileName));
-        }
-
-        private void SetRootGameObjectHierarchy()
-        {
-            rootGameObjectHierarchy = GetGameObjectHierarchy(ghFileName);
         }
 
         private void RebuildTreeView()
@@ -117,13 +126,23 @@ namespace GameObjectHierarchyTool
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            GameObjectHierarchy gameObjectHierarchy = (GameObjectHierarchy)contextMenuStripNode.Tag;
+            RemoveNode(contextMenuStripNode);
+        }
+
+        private void RemoveNode(TreeNode node)
+        {
+            GameObjectHierarchy gameObjectHierarchy = (GameObjectHierarchy)node.Tag;
             if (gameObjectHierarchy.father == null)
             {
                 return;
             }
             gameObjectHierarchy.father.children.Remove(gameObjectHierarchy);
-            contextMenuStripNode.Parent.Nodes.Remove(contextMenuStripNode);
+            node.Parent.Nodes.Remove(node);
+        }
+
+        private void RenameNode(TreeNode node)
+        {
+            node.BeginEdit();
         }
 
         private void GhTreeView_AfterLabelEdit(object? sender, NodeLabelEditEventArgs e)
@@ -134,7 +153,7 @@ namespace GameObjectHierarchyTool
 
         private void renameToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            contextMenuStripNode.BeginEdit();
+            RenameNode(contextMenuStripNode);
         }
     }
 }

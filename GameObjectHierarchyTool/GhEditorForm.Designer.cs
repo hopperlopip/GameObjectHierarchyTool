@@ -36,8 +36,8 @@
             saveAsToolStripMenuItem = new ToolStripMenuItem();
             saveGhDialog = new SaveFileDialog();
             nodeMenuStrip = new ContextMenuStrip(components);
-            deleteToolStripMenuItem = new ToolStripMenuItem();
             renameToolStripMenuItem = new ToolStripMenuItem();
+            deleteToolStripMenuItem = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             nodeMenuStrip.SuspendLayout();
             SuspendLayout();
@@ -93,21 +93,23 @@
             nodeMenuStrip.ImageScalingSize = new Size(20, 20);
             nodeMenuStrip.Items.AddRange(new ToolStripItem[] { renameToolStripMenuItem, deleteToolStripMenuItem });
             nodeMenuStrip.Name = "contextMenuStrip1";
-            nodeMenuStrip.Size = new Size(211, 80);
-            // 
-            // deleteToolStripMenuItem
-            // 
-            deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            deleteToolStripMenuItem.Size = new Size(210, 24);
-            deleteToolStripMenuItem.Text = "Delete";
-            deleteToolStripMenuItem.Click += deleteToolStripMenuItem_Click;
+            nodeMenuStrip.Size = new Size(244, 52);
             // 
             // renameToolStripMenuItem
             // 
             renameToolStripMenuItem.Name = "renameToolStripMenuItem";
-            renameToolStripMenuItem.Size = new Size(210, 24);
-            renameToolStripMenuItem.Text = "Rename";
+            renameToolStripMenuItem.ShortcutKeys = Keys.F2;
+            renameToolStripMenuItem.Size = new Size(243, 24);
+            renameToolStripMenuItem.Text = "Rename GameObject";
             renameToolStripMenuItem.Click += renameToolStripMenuItem_Click;
+            // 
+            // deleteToolStripMenuItem
+            // 
+            deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
+            deleteToolStripMenuItem.ShortcutKeyDisplayString = "DEL";
+            deleteToolStripMenuItem.Size = new Size(243, 24);
+            deleteToolStripMenuItem.Text = "Delete hierarchy";
+            deleteToolStripMenuItem.Click += deleteToolStripMenuItem_Click;
             // 
             // GhEditorForm
             // 
