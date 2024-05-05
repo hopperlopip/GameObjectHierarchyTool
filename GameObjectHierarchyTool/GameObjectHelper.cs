@@ -1,6 +1,7 @@
 ﻿using AssetsTools.NET.Extra;
 using AssetsTools.NET;
 using System.IO;
+using System.IO.Packaging;
 
 namespace GameObjectHierarchyTool
 {
@@ -90,6 +91,23 @@ namespace GameObjectHierarchyTool
             return childrenPathIds;
         }
 
+        public void ReplaceChildrenPathIds(long gameObjectPathId, List<long> childrenPathIds)
+        {
+            long transformPathId = GetTransformPathId(gameObjectPathId);
+            var transformInfo = assetsFile.GetAssetInfo(transformPathId);
+            var transformBase = manager.GetBaseField(fileInstance, transformInfo);
+            var childrenTransform = transformBase["m_Children.Array"];
+            childrenTransform.Children.Clear();
+            for (int i = 0; i < childrenPathIds.Count; i++)
+            {
+                var newChildrenArrayItem = ValueBuilder.DefaultValueFieldFromArrayTemplate(childrenTransform);
+                newChildrenArrayItem["m_FileID"].AsInt = 0;
+                newChildrenArrayItem["m_PathID"].AsLong = GetTransformPathId(childrenPathIds[i]);
+                childrenTransform.Children.Add(newChildrenArrayItem);
+            }
+            transformInfo.SetNewData(transformBase);
+        }
+
         public long GetFatherPathId(long gameObjectPathId)
         {
             long transformPathId = GetTransformPathId(gameObjectPathId);
@@ -97,6 +115,15 @@ namespace GameObjectHierarchyTool
             long fatherTransformPathId = transformBase["m_Father.m_PathID"].AsLong;
             long fatherPathId = GetGameObjectPathId(fatherTransformPathId);
             return fatherPathId;
+        }
+
+        public void ReplaceFatherPathId(long gameObjectPathId, long newFatherPathId)
+        {
+            long transformPathId = GetTransformPathId(gameObjectPathId);
+            var transformInfo = assetsFile.GetAssetInfo(transformPathId);
+            var transformBase = manager.GetBaseField(fileInstance, transformInfo);
+            transformBase["m_Father.m_PathID"].AsLong = GetTransformPathId(newFatherPathId);
+            transformInfo.SetNewData(transformBase);
         }
 
         public GameObjectHierarchy GetHierarchy(GameObject gameObject)
@@ -275,6 +302,30 @@ namespace GameObjectHierarchyTool
         {
             assetFile.Reader.Position = assetFileInfo.GetAbsoluteByteOffset(assetFile);
             return assetFile.Reader.ReadBytes(Convert.ToInt32(assetFileInfo.ByteSize));
+        }
+
+        public void ChangeGameObjectFather(long gameObjectPathId, long newFatherPathId)
+        {
+            long oldFatherPathId = GetFatherPathId(gameObjectPathId);
+
+            //Deleting GameObject from FatherGameObject
+            if (oldFatherPathId != 0)
+            {
+                List<long> oldChildrenPathIds = GetChildrenPathIds(oldFatherPathId);
+                oldChildrenPathIds.Remove(gameObjectPathId);
+                ReplaceChildrenPathIds(oldFatherPathId, oldChildrenPathIds);
+            }
+
+            //Adding GameObject to new FatherGameObject
+            if (newFatherPathId != 0)
+            {
+                List<long> newChildrenPathIds = GetChildrenPathIds(newFatherPathId);
+                newChildrenPathIds.Add(gameObjectPathId);
+                ReplaceChildrenPathIds(newFatherPathId, newChildrenPathIds);
+            }
+
+            //Replacing FatherGameObject info in the GameObject
+            ReplaceFatherPathId(gameObjectPathId, newFatherPathId);
         }
     }
 }

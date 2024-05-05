@@ -128,6 +128,7 @@
             // 
             // gameObjectTreeView
             // 
+            gameObjectTreeView.AllowDrop = true;
             gameObjectTreeView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             gameObjectTreeView.CheckBoxes = true;
             gameObjectTreeView.HideSelection = false;

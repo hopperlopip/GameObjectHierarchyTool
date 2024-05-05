@@ -32,6 +32,11 @@ namespace GameObjectHierarchyTool
             gameObjectTreeView.MouseUp += GameObjectTreeView_MouseUp;
             gameObjectTreeView.AfterLabelEdit += GameObjectTreeView_AfterLabelEdit;
             gameObjectTreeView.KeyUp += GameObjectTreeView_KeyUp;
+
+            gameObjectTreeView.ItemDrag += GameObjectTreeView_ItemDrag;
+            gameObjectTreeView.DragEnter += GameObjectTreeView_DragEnter;
+            gameObjectTreeView.DragOver += GameObjectTreeView_DragOver;
+            gameObjectTreeView.DragDrop += GameObjectTreeView_DragDrop;
         }
 
         private void GameObjectTreeView_KeyUp(object? sender, KeyEventArgs e)
@@ -318,6 +323,77 @@ namespace GameObjectHierarchyTool
         private void renameGameObjectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             RenameNode(contextMenuStripNode);
+        }
+
+        private void GameObjectTreeView_ItemDrag(object? sender, ItemDragEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                DoDragDrop(e.Item, DragDropEffects.Move);
+            }
+        }
+
+        private void GameObjectTreeView_DragEnter(object? sender, DragEventArgs e)
+        {
+            TreeNode draggedNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
+            draggedNode.ForeColor = Color.Gray;
+            e.Effect = e.AllowedEffect;
+        }
+
+        private void GameObjectTreeView_DragOver(object? sender, DragEventArgs e)
+        {
+            Point targetPoint = gameObjectTreeView.PointToClient(new Point(e.X, e.Y));
+            gameObjectTreeView.SelectedNode = gameObjectTreeView.GetNodeAt(targetPoint);
+        }
+
+        private void GameObjectTreeView_DragDrop(object? sender, DragEventArgs e)
+        {
+            Point targetPoint = gameObjectTreeView.PointToClient(new Point(e.X, e.Y));
+            TreeNode targetNode = gameObjectTreeView.GetNodeAt(targetPoint);
+            TreeNode draggedNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
+            if (targetNode == null)
+            {
+                if (e.Effect == DragDropEffects.Move)
+                {
+                    long gameObjectPathId = (long)draggedNode.Tag;
+                    gameObjectHelper.ChangeGameObjectFather(gameObjectPathId, 0);
+
+                    draggedNode.Remove();
+                    gameObjectTreeView.Nodes.Add(draggedNode);
+                }
+            }
+            else if (!draggedNode.Equals(targetNode) && !ContainsDraggedNode(draggedNode, targetNode))
+            {
+                if (e.Effect == DragDropEffects.Move)
+                {
+                    long gameObjectPathId = (long)draggedNode.Tag;
+                    long newFatherPathId = (long)targetNode.Tag;
+                    gameObjectHelper.ChangeGameObjectFather(gameObjectPathId, newFatherPathId);
+
+                    draggedNode.Remove();
+                    targetNode.Nodes.Add(draggedNode);
+                }
+
+                targetNode.Expand();
+            }
+
+            draggedNode.ForeColor = Color.Empty;
+            gameObjectTreeView.SelectedNode = draggedNode;
+            SetModifiedState(ModifiedState.Modified);
+        }
+
+        private bool ContainsDraggedNode(TreeNode draggedNode, TreeNode targedNode)
+        {
+            TreeNode parent = targedNode.Parent;
+            while (parent != null)
+            {
+                if (draggedNode.Equals(parent))
+                {
+                    return true;
+                }
+                parent = parent.Parent;
+            }
+            return false;
         }
     }
 }
