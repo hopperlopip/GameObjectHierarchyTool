@@ -37,13 +37,14 @@
             saveGhDialog = new SaveFileDialog();
             nodeMenuStrip = new ContextMenuStrip(components);
             renameToolStripMenuItem = new ToolStripMenuItem();
-            deleteToolStripMenuItem = new ToolStripMenuItem();
+            removeHierarchyToolStripMenuItem = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             nodeMenuStrip.SuspendLayout();
             SuspendLayout();
             // 
             // ghTreeView
             // 
+            ghTreeView.AllowDrop = true;
             ghTreeView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             ghTreeView.CheckBoxes = true;
             ghTreeView.LabelEdit = true;
@@ -91,25 +92,25 @@
             // nodeMenuStrip
             // 
             nodeMenuStrip.ImageScalingSize = new Size(20, 20);
-            nodeMenuStrip.Items.AddRange(new ToolStripItem[] { renameToolStripMenuItem, deleteToolStripMenuItem });
+            nodeMenuStrip.Items.AddRange(new ToolStripItem[] { renameToolStripMenuItem, removeHierarchyToolStripMenuItem });
             nodeMenuStrip.Name = "contextMenuStrip1";
-            nodeMenuStrip.Size = new Size(244, 52);
+            nodeMenuStrip.Size = new Size(232, 80);
             // 
             // renameToolStripMenuItem
             // 
             renameToolStripMenuItem.Name = "renameToolStripMenuItem";
             renameToolStripMenuItem.ShortcutKeys = Keys.F2;
-            renameToolStripMenuItem.Size = new Size(243, 24);
-            renameToolStripMenuItem.Text = "Rename GameObject";
+            renameToolStripMenuItem.Size = new Size(231, 24);
+            renameToolStripMenuItem.Text = "Rename";
             renameToolStripMenuItem.Click += renameToolStripMenuItem_Click;
             // 
-            // deleteToolStripMenuItem
+            // removeHierarchyToolStripMenuItem
             // 
-            deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            deleteToolStripMenuItem.ShortcutKeyDisplayString = "DEL";
-            deleteToolStripMenuItem.Size = new Size(243, 24);
-            deleteToolStripMenuItem.Text = "Delete hierarchy";
-            deleteToolStripMenuItem.Click += deleteToolStripMenuItem_Click;
+            removeHierarchyToolStripMenuItem.Name = "removeHierarchyToolStripMenuItem";
+            removeHierarchyToolStripMenuItem.ShortcutKeyDisplayString = "DEL";
+            removeHierarchyToolStripMenuItem.Size = new Size(231, 24);
+            removeHierarchyToolStripMenuItem.Text = "Remove hierarchy";
+            removeHierarchyToolStripMenuItem.Click += removeHierarchyToolStripMenuItem_Click;
             // 
             // GhEditorForm
             // 
@@ -139,7 +140,7 @@
         private ToolStripMenuItem saveAsToolStripMenuItem;
         private SaveFileDialog saveGhDialog;
         private ContextMenuStrip nodeMenuStrip;
-        private ToolStripMenuItem deleteToolStripMenuItem;
+        private ToolStripMenuItem removeHierarchyToolStripMenuItem;
         private ToolStripMenuItem renameToolStripMenuItem;
     }
 }

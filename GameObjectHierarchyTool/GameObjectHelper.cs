@@ -26,13 +26,10 @@ namespace GameObjectHierarchyTool
             gameObject.active = gameObjectBase["m_IsActive"].AsBool;
             gameObject.data = gameObjectBase.WriteToByteArray();
             gameObject.pathID = pathId;
-            var components = gameObjectBase["m_Component.Array"];
-
-            for (int i = 0; i < components.Children.Count; i++)
+            var componentsPPtrs = GetComponentsPPtrs(pathId);
+            for (int i = 0; i < componentsPPtrs.Count; i++)
             {
-                var componentArrayData = components.Children[i];
-                var componentPointer = componentArrayData["component"];
-                var componentExtInfo = manager.GetExtAsset(fileInstance, componentPointer);
+                var componentExtInfo = manager.GetExtAsset(fileInstance, componentsPPtrs[i]);
                 int componentType = componentExtInfo.info.TypeId;
                 byte[] componentData;
                 if (componentType == (int)AssetClassID.MonoBehaviour)
@@ -89,6 +86,20 @@ namespace GameObjectHierarchyTool
                 childrenPathIds.Add(childGameObjectPathId);
             }
             return childrenPathIds;
+        }
+
+        public List<AssetTypeValueField> GetComponentsPPtrs(long gameObjectPathId)
+        {
+            var gameObjectBase = manager.GetBaseField(fileInstance, gameObjectPathId);
+            var components = gameObjectBase["m_Component.Array"];
+            List<AssetTypeValueField> componentsPPtrs = new();
+            for (int i = 0; i < components.Children.Count; i++)
+            {
+                var componentArrayData = components.Children[i];
+                var componentPointer = componentArrayData["component"];
+                componentsPPtrs.Add(componentPointer);
+            }
+            return componentsPPtrs;
         }
 
         public void ReplaceChildrenPathIds(long gameObjectPathId, List<long> childrenPathIds)
@@ -326,6 +337,29 @@ namespace GameObjectHierarchyTool
 
             //Replacing FatherGameObject info in the GameObject
             ReplaceFatherPathId(gameObjectPathId, newFatherPathId);
+        }
+
+        public void RemoveGameObject(long gameObjectPathId)
+        {
+            var gameObjectInfo = assetsFile.GetAssetInfo(gameObjectPathId);
+            var componentsPPtrs = GetComponentsPPtrs(gameObjectPathId);
+            for (int i = 0; i < componentsPPtrs.Count; i++)
+            {
+                var componentExtInfo = manager.GetExtAsset(fileInstance, componentsPPtrs[i]);
+                componentExtInfo.info.SetRemoved();
+            }
+            gameObjectInfo.SetRemoved();
+        }
+
+        public void RemoveHierarchy(long gameObjectPathId)
+        {
+            List<long> childrenPathIds = GetChildrenPathIds(gameObjectPathId);
+            for (int i = 0;i < childrenPathIds.Count; i++)
+            {
+                long childPathId = childrenPathIds[i];
+                RemoveHierarchy(childPathId);
+            }
+            RemoveGameObject(gameObjectPathId);
         }
     }
 }

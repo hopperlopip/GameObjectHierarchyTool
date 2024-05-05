@@ -51,6 +51,9 @@ namespace GameObjectHierarchyTool
                 case Keys.F2:
                     RenameNode(node);
                     break;
+                case Keys.Delete:
+                    RemoveNode(node);
+                    break;
             }
         }
 
@@ -88,6 +91,7 @@ namespace GameObjectHierarchyTool
         private void LoadAssetsFile(string assetsPath)
         {
             manager.LoadClassPackage("classdata.tpk");
+            manager.UseQuickLookup = true;
             try
             {
                 fileInstance = manager.LoadAssetsFile(assetsPath, loadDeps: true);
@@ -161,18 +165,19 @@ namespace GameObjectHierarchyTool
 
         enum ModifiedState
         {
+            None,
             Modified,
             Saved,
         }
 
         private void SetModifiedState(ModifiedState state)
         {
-            if (state == ModifiedState.Modified)
+            if (state is ModifiedState.Modified)
             {
                 modified = true;
                 Text = initFormTitle + $" - {Path.GetFileName(assetsPath)} - Modified";
             }
-            else if (state == ModifiedState.Saved)
+            else if (state is ModifiedState.None or ModifiedState.Saved)
             {
                 modified = false;
                 Text = initFormTitle + $" - {Path.GetFileName(assetsPath)}";
@@ -191,7 +196,7 @@ namespace GameObjectHierarchyTool
                 manager.UnloadAll();
             }
             LoadAssetsFile(assetsPath);
-            SetModifiedState(ModifiedState.Saved);
+            SetModifiedState(ModifiedState.None);
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -307,9 +312,9 @@ namespace GameObjectHierarchyTool
 
         private void GameObjectTreeView_AfterLabelEdit(object? sender, NodeLabelEditEventArgs e)
         {
-            long gameObjectPathId = (long)e.Node.Tag;
             if (e.Label != null)
             {
+                long gameObjectPathId = (long)e.Node.Tag;
                 gameObjectHelper.RenameGameObject(gameObjectPathId, e.Label);
                 SetModifiedState(ModifiedState.Modified);
             }
@@ -336,12 +341,17 @@ namespace GameObjectHierarchyTool
         private void GameObjectTreeView_DragEnter(object? sender, DragEventArgs e)
         {
             TreeNode draggedNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
+            if (draggedNode == null)
+            {
+                return;
+            }
             draggedNode.ForeColor = Color.Gray;
             e.Effect = e.AllowedEffect;
         }
 
         private void GameObjectTreeView_DragOver(object? sender, DragEventArgs e)
         {
+            gameObjectTreeView.Scroll();
             Point targetPoint = gameObjectTreeView.PointToClient(new Point(e.X, e.Y));
             gameObjectTreeView.SelectedNode = gameObjectTreeView.GetNodeAt(targetPoint);
         }
@@ -360,6 +370,7 @@ namespace GameObjectHierarchyTool
 
                     draggedNode.Remove();
                     gameObjectTreeView.Nodes.Add(draggedNode);
+                    SetModifiedState(ModifiedState.Modified);
                 }
             }
             else if (!draggedNode.Equals(targetNode) && !ContainsDraggedNode(draggedNode, targetNode))
@@ -372,17 +383,16 @@ namespace GameObjectHierarchyTool
 
                     draggedNode.Remove();
                     targetNode.Nodes.Add(draggedNode);
+                    SetModifiedState(ModifiedState.Modified);
                 }
-
                 targetNode.Expand();
             }
 
             draggedNode.ForeColor = Color.Empty;
             gameObjectTreeView.SelectedNode = draggedNode;
-            SetModifiedState(ModifiedState.Modified);
         }
 
-        private bool ContainsDraggedNode(TreeNode draggedNode, TreeNode targedNode)
+        public static bool ContainsDraggedNode(TreeNode draggedNode, TreeNode targedNode)
         {
             TreeNode parent = targedNode.Parent;
             while (parent != null)
@@ -394,6 +404,19 @@ namespace GameObjectHierarchyTool
                 parent = parent.Parent;
             }
             return false;
+        }
+
+        private void removeHierarchyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RemoveNode(contextMenuStripNode);
+        }
+
+        private void RemoveNode(TreeNode node)
+        {
+            long gameObjectPathId = (long)node.Tag;
+            gameObjectHelper.RemoveHierarchy(gameObjectPathId);
+            node.Remove();
+            SetModifiedState(ModifiedState.Modified);
         }
     }
 }

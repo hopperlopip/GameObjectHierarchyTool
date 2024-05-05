@@ -45,6 +45,7 @@
             nodeMenuStrip = new ContextMenuStrip(components);
             exportToFileToolStripMenuItem = new ToolStripMenuItem();
             renameGameObjectToolStripMenuItem = new ToolStripMenuItem();
+            removeHierarchyToolStripMenuItem = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             nodeMenuStrip.SuspendLayout();
             SuspendLayout();
@@ -141,14 +142,14 @@
             // nodeMenuStrip
             // 
             nodeMenuStrip.ImageScalingSize = new Size(20, 20);
-            nodeMenuStrip.Items.AddRange(new ToolStripItem[] { exportToFileToolStripMenuItem, renameGameObjectToolStripMenuItem });
+            nodeMenuStrip.Items.AddRange(new ToolStripItem[] { exportToFileToolStripMenuItem, renameGameObjectToolStripMenuItem, removeHierarchyToolStripMenuItem });
             nodeMenuStrip.Name = "contextMenuStrip1";
-            nodeMenuStrip.Size = new Size(244, 52);
+            nodeMenuStrip.Size = new Size(232, 104);
             // 
             // exportToFileToolStripMenuItem
             // 
             exportToFileToolStripMenuItem.Name = "exportToFileToolStripMenuItem";
-            exportToFileToolStripMenuItem.Size = new Size(243, 24);
+            exportToFileToolStripMenuItem.Size = new Size(231, 24);
             exportToFileToolStripMenuItem.Text = "Export hierarchy";
             exportToFileToolStripMenuItem.Click += exportToFileToolStripMenuItem_Click;
             // 
@@ -156,9 +157,17 @@
             // 
             renameGameObjectToolStripMenuItem.Name = "renameGameObjectToolStripMenuItem";
             renameGameObjectToolStripMenuItem.ShortcutKeys = Keys.F2;
-            renameGameObjectToolStripMenuItem.Size = new Size(243, 24);
-            renameGameObjectToolStripMenuItem.Text = "Rename GameObject";
+            renameGameObjectToolStripMenuItem.Size = new Size(231, 24);
+            renameGameObjectToolStripMenuItem.Text = "Rename";
             renameGameObjectToolStripMenuItem.Click += renameGameObjectToolStripMenuItem_Click;
+            // 
+            // removeHierarchyToolStripMenuItem
+            // 
+            removeHierarchyToolStripMenuItem.Name = "removeHierarchyToolStripMenuItem";
+            removeHierarchyToolStripMenuItem.ShortcutKeyDisplayString = "DEL";
+            removeHierarchyToolStripMenuItem.Size = new Size(231, 24);
+            removeHierarchyToolStripMenuItem.Text = "Remove hierarchy";
+            removeHierarchyToolStripMenuItem.Click += removeHierarchyToolStripMenuItem_Click;
             // 
             // MainWindow
             // 
@@ -196,5 +205,6 @@
         private ToolStripMenuItem importToolStripMenuItem;
         private ToolStripMenuItem gHEditorToolStripMenuItem;
         private ToolStripMenuItem renameGameObjectToolStripMenuItem;
+        private ToolStripMenuItem removeHierarchyToolStripMenuItem;
     }
 }
