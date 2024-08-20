@@ -348,18 +348,33 @@ namespace GameObjectHierarchyTool
                 var componentExtInfo = manager.GetExtAsset(fileInstance, componentsPPtrs[i]);
                 componentExtInfo.info.SetRemoved();
             }
+            //Works too slow
+            //RemoveFatherChildPPtr(gameObjectPathId);
             gameObjectInfo.SetRemoved();
         }
 
-        public void RemoveHierarchy(long gameObjectPathId)
+        public void RemoveHierarchy(long gameObjectPathId, bool removeFatherChildPPtr = true)
         {
+            if (removeFatherChildPPtr)
+                RemoveFatherChildPPtr(gameObjectPathId);
             List<long> childrenPathIds = GetChildrenPathIds(gameObjectPathId);
             for (int i = 0;i < childrenPathIds.Count; i++)
             {
                 long childPathId = childrenPathIds[i];
-                RemoveHierarchy(childPathId);
+                RemoveHierarchy(childPathId, false);
             }
             RemoveGameObject(gameObjectPathId);
+        }
+
+        public void RemoveFatherChildPPtr(long gameObjectPathId)
+        {
+            long fatherPathId = GetFatherPathId(gameObjectPathId);
+            if (fatherPathId != 0)
+            {
+                List<long> fatherChildrenPathIds = GetChildrenPathIds(fatherPathId);
+                fatherChildrenPathIds.Remove(gameObjectPathId);
+                ReplaceChildrenPathIds(fatherPathId, fatherChildrenPathIds);
+            }
         }
     }
 }
