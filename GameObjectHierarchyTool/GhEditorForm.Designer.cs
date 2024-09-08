@@ -48,9 +48,10 @@
             ghTreeView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             ghTreeView.CheckBoxes = true;
             ghTreeView.LabelEdit = true;
-            ghTreeView.Location = new Point(12, 27);
+            ghTreeView.Location = new Point(10, 20);
+            ghTreeView.Margin = new Padding(3, 2, 3, 2);
             ghTreeView.Name = "ghTreeView";
-            ghTreeView.Size = new Size(760, 445);
+            ghTreeView.Size = new Size(642, 363);
             ghTreeView.TabIndex = 0;
             // 
             // menuStrip1
@@ -59,7 +60,8 @@
             menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(784, 28);
+            menuStrip1.Padding = new Padding(5, 2, 0, 2);
+            menuStrip1.Size = new Size(662, 24);
             menuStrip1.TabIndex = 1;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -67,20 +69,20 @@
             // 
             fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { saveToolStripMenuItem, saveAsToolStripMenuItem });
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            fileToolStripMenuItem.Size = new Size(46, 24);
+            fileToolStripMenuItem.Size = new Size(37, 20);
             fileToolStripMenuItem.Text = "File";
             // 
             // saveToolStripMenuItem
             // 
             saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            saveToolStripMenuItem.Size = new Size(152, 26);
+            saveToolStripMenuItem.Size = new Size(123, 22);
             saveToolStripMenuItem.Text = "Save";
             saveToolStripMenuItem.Click += saveToolStripMenuItem_Click;
             // 
             // saveAsToolStripMenuItem
             // 
             saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            saveAsToolStripMenuItem.Size = new Size(152, 26);
+            saveAsToolStripMenuItem.Size = new Size(123, 22);
             saveAsToolStripMenuItem.Text = "Save As...";
             saveAsToolStripMenuItem.Click += saveAsToolStripMenuItem_Click;
             // 
@@ -94,13 +96,13 @@
             nodeMenuStrip.ImageScalingSize = new Size(20, 20);
             nodeMenuStrip.Items.AddRange(new ToolStripItem[] { renameToolStripMenuItem, removeHierarchyToolStripMenuItem });
             nodeMenuStrip.Name = "contextMenuStrip1";
-            nodeMenuStrip.Size = new Size(232, 80);
+            nodeMenuStrip.Size = new Size(197, 48);
             // 
             // renameToolStripMenuItem
             // 
             renameToolStripMenuItem.Name = "renameToolStripMenuItem";
             renameToolStripMenuItem.ShortcutKeys = Keys.F2;
-            renameToolStripMenuItem.Size = new Size(231, 24);
+            renameToolStripMenuItem.Size = new Size(196, 22);
             renameToolStripMenuItem.Text = "Rename";
             renameToolStripMenuItem.Click += renameToolStripMenuItem_Click;
             // 
@@ -108,18 +110,19 @@
             // 
             removeHierarchyToolStripMenuItem.Name = "removeHierarchyToolStripMenuItem";
             removeHierarchyToolStripMenuItem.ShortcutKeyDisplayString = "DEL";
-            removeHierarchyToolStripMenuItem.Size = new Size(231, 24);
+            removeHierarchyToolStripMenuItem.Size = new Size(196, 22);
             removeHierarchyToolStripMenuItem.Text = "Remove hierarchy";
             removeHierarchyToolStripMenuItem.Click += removeHierarchyToolStripMenuItem_Click;
             // 
             // GhEditorForm
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(784, 484);
+            AutoScaleDimensions = new SizeF(96F, 96F);
+            AutoScaleMode = AutoScaleMode.Dpi;
+            ClientSize = new Size(662, 391);
             Controls.Add(ghTreeView);
             Controls.Add(menuStrip1);
             MainMenuStrip = menuStrip1;
+            Margin = new Padding(3, 2, 3, 2);
             Name = "GhEditorForm";
             ShowIcon = false;
             StartPosition = FormStartPosition.CenterScreen;

@@ -1,7 +1,5 @@
-﻿using AssetsTools.NET.Extra;
-using AssetsTools.NET;
-using System.IO;
-using System.IO.Packaging;
+﻿using AssetsTools.NET;
+using AssetsTools.NET.Extra;
 
 namespace GameObjectHierarchyTool
 {
@@ -151,17 +149,35 @@ namespace GameObjectHierarchyTool
             return gameObjectHierarchy;
         }
 
+        public AssetFileInfo CreateAsset(long pathId, AssetClassID typeId)
+        {
+            var assetInfo = AssetFileInfo.Create(assetsFile, pathId, (int)typeId, manager.ClassDatabase);
+            var assetBase = manager.CreateValueBaseField(fileInstance, (int)typeId);
+            assetInfo.SetNewData(assetBase);
+            assetsFile.Metadata.AddAssetInfo(assetInfo);
+            return assetInfo;
+        }
+
+        public AssetFileInfo CreateGameObject(long pathId)
+        {
+            return CreateAsset(pathId, AssetClassID.GameObject);
+        }
+
+        public AssetFileInfo CreateTransform(long pathId)
+        {
+            return CreateAsset(pathId, AssetClassID.Transform);
+        }
+
         public void CreateGameObject(GameObject gameObject)
         {
             gameObject.pathID = assetsFile.AssetInfos.Count + 1;
-            var gameObjectInfo = AssetFileInfo.Create(assetsFile, gameObject.pathID, (int)AssetClassID.GameObject, manager.ClassDatabase, false);
+            var gameObjectInfo = CreateGameObject(gameObject.pathID);
             gameObjectInfo.SetNewData(gameObject.data);
             var gameObjectBase = manager.GetBaseField(fileInstance, gameObjectInfo);
             gameObjectBase["m_Name"].AsString = gameObject.name;
             gameObjectBase["m_IsActive"].AsBool = gameObject.active;
             var components = gameObjectBase["m_Component.Array"];
             components.Children.Clear();
-            assetsFile.Metadata.AddAssetInfo(gameObjectInfo);
 
             for (int i = 0; i < gameObject.components.Count; i++)
             {
