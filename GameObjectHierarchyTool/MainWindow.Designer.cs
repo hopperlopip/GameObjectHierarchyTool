@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
             openToolStripMenuItem = new ToolStripMenuItem();
@@ -41,15 +42,20 @@
             saveAssetsDialog = new SaveFileDialog();
             saveGhDialog = new SaveFileDialog();
             openGhDialog = new OpenFileDialog();
-            gameObjectTreeView = new TreeView();
             treeViewMenuStrip = new ContextMenuStrip(components);
+            importTreeViewMenuItem = new ToolStripMenuItem();
             createGameObjectToolStripMenuItem = new ToolStripMenuItem();
             nodeMenuStrip = new ContextMenuStrip(components);
             exportToFileToolStripMenuItem = new ToolStripMenuItem();
-            renameGameObjectToolStripMenuItem = new ToolStripMenuItem();
-            createGameObjectNodeStripMenuItem = new ToolStripMenuItem();
+            importNodeMenuItem = new ToolStripMenuItem();
+            toolStripSeparator1 = new ToolStripSeparator();
             editGameObjectToolStripMenuItem = new ToolStripMenuItem();
+            renameGameObjectToolStripMenuItem = new ToolStripMenuItem();
+            editComponentsToolStripMenuItem = new ToolStripMenuItem();
             removeHierarchyToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator2 = new ToolStripSeparator();
+            createGameObjectNodeStripMenuItem = new ToolStripMenuItem();
+            gameObjectTreeView = new TreeViewEx.TreeViewEx();
             menuStrip1.SuspendLayout();
             treeViewMenuStrip.SuspendLayout();
             nodeMenuStrip.SuspendLayout();
@@ -76,35 +82,38 @@
             // openToolStripMenuItem
             // 
             openToolStripMenuItem.Name = "openToolStripMenuItem";
-            openToolStripMenuItem.Size = new Size(162, 22);
+            openToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.O;
+            openToolStripMenuItem.Size = new Size(186, 22);
             openToolStripMenuItem.Text = "Open";
             openToolStripMenuItem.Click += openToolStripMenuItem_Click;
             // 
             // importToolStripMenuItem
             // 
             importToolStripMenuItem.Name = "importToolStripMenuItem";
-            importToolStripMenuItem.Size = new Size(162, 22);
+            importToolStripMenuItem.Size = new Size(186, 22);
             importToolStripMenuItem.Text = "Import hierarchy";
             importToolStripMenuItem.Click += importToolStripMenuItem_Click;
             // 
             // saveToolStripMenuItem
             // 
             saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            saveToolStripMenuItem.Size = new Size(162, 22);
+            saveToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.S;
+            saveToolStripMenuItem.Size = new Size(186, 22);
             saveToolStripMenuItem.Text = "Save";
             saveToolStripMenuItem.Click += saveToolStripMenuItem_Click;
             // 
             // saveAsToolStripMenuItem
             // 
             saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            saveAsToolStripMenuItem.Size = new Size(162, 22);
+            saveAsToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.Alt | Keys.S;
+            saveAsToolStripMenuItem.Size = new Size(186, 22);
             saveAsToolStripMenuItem.Text = "Save As...";
             saveAsToolStripMenuItem.Click += saveAsToolStripMenuItem_Click;
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(162, 22);
+            exitToolStripMenuItem.Size = new Size(186, 22);
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
@@ -117,11 +126,11 @@
             // 
             // openAssetsDialog
             // 
-            openAssetsDialog.Filter = "Level file|level*|Assets file|*.assets";
+            openAssetsDialog.Filter = "Level file|level*|Assets file|*.assets|All files|*.*";
             // 
             // saveAssetsDialog
             // 
-            saveAssetsDialog.Filter = "Level file|level*|Assets file|*.assets";
+            saveAssetsDialog.Filter = "Level file|level*|Assets file|*.assets|All files|*.*";
             // 
             // saveGhDialog
             // 
@@ -133,25 +142,18 @@
             openGhDialog.DefaultExt = "gh";
             openGhDialog.Filter = "GameObject Hierarchy file|*.gh";
             // 
-            // gameObjectTreeView
-            // 
-            gameObjectTreeView.AllowDrop = true;
-            gameObjectTreeView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            gameObjectTreeView.CheckBoxes = true;
-            gameObjectTreeView.ContextMenuStrip = treeViewMenuStrip;
-            gameObjectTreeView.HideSelection = false;
-            gameObjectTreeView.LabelEdit = true;
-            gameObjectTreeView.Location = new Point(10, 23);
-            gameObjectTreeView.Margin = new Padding(3, 2, 3, 2);
-            gameObjectTreeView.Name = "gameObjectTreeView";
-            gameObjectTreeView.Size = new Size(688, 396);
-            gameObjectTreeView.TabIndex = 3;
-            // 
             // treeViewMenuStrip
             // 
-            treeViewMenuStrip.Items.AddRange(new ToolStripItem[] { createGameObjectToolStripMenuItem });
+            treeViewMenuStrip.Items.AddRange(new ToolStripItem[] { importTreeViewMenuItem, createGameObjectToolStripMenuItem });
             treeViewMenuStrip.Name = "treeViewMenuStrip";
-            treeViewMenuStrip.Size = new Size(178, 26);
+            treeViewMenuStrip.Size = new Size(178, 48);
+            // 
+            // importTreeViewMenuItem
+            // 
+            importTreeViewMenuItem.Name = "importTreeViewMenuItem";
+            importTreeViewMenuItem.Size = new Size(177, 22);
+            importTreeViewMenuItem.Text = "Import hierarchy";
+            importTreeViewMenuItem.Click += importTreeViewMenuItem_Click;
             // 
             // createGameObjectToolStripMenuItem
             // 
@@ -163,9 +165,9 @@
             // nodeMenuStrip
             // 
             nodeMenuStrip.ImageScalingSize = new Size(20, 20);
-            nodeMenuStrip.Items.AddRange(new ToolStripItem[] { exportToFileToolStripMenuItem, renameGameObjectToolStripMenuItem, editGameObjectToolStripMenuItem, createGameObjectNodeStripMenuItem, removeHierarchyToolStripMenuItem });
+            nodeMenuStrip.Items.AddRange(new ToolStripItem[] { exportToFileToolStripMenuItem, importNodeMenuItem, toolStripSeparator1, editGameObjectToolStripMenuItem, renameGameObjectToolStripMenuItem, editComponentsToolStripMenuItem, removeHierarchyToolStripMenuItem, toolStripSeparator2, createGameObjectNodeStripMenuItem });
             nodeMenuStrip.Name = "contextMenuStrip1";
-            nodeMenuStrip.Size = new Size(197, 136);
+            nodeMenuStrip.Size = new Size(197, 170);
             // 
             // exportToFileToolStripMenuItem
             // 
@@ -173,6 +175,25 @@
             exportToFileToolStripMenuItem.Size = new Size(196, 22);
             exportToFileToolStripMenuItem.Text = "Export hierarchy";
             exportToFileToolStripMenuItem.Click += exportToFileToolStripMenuItem_Click;
+            // 
+            // importNodeMenuItem
+            // 
+            importNodeMenuItem.Name = "importNodeMenuItem";
+            importNodeMenuItem.Size = new Size(196, 22);
+            importNodeMenuItem.Text = "Import hierarchy";
+            importNodeMenuItem.Click += importNodeMenuItem_Click;
+            // 
+            // toolStripSeparator1
+            // 
+            toolStripSeparator1.Name = "toolStripSeparator1";
+            toolStripSeparator1.Size = new Size(193, 6);
+            // 
+            // editGameObjectToolStripMenuItem
+            // 
+            editGameObjectToolStripMenuItem.Name = "editGameObjectToolStripMenuItem";
+            editGameObjectToolStripMenuItem.Size = new Size(196, 22);
+            editGameObjectToolStripMenuItem.Text = "Edit";
+            editGameObjectToolStripMenuItem.Click += editGameObjectToolStripMenuItem_Click;
             // 
             // renameGameObjectToolStripMenuItem
             // 
@@ -182,6 +203,27 @@
             renameGameObjectToolStripMenuItem.Text = "Rename";
             renameGameObjectToolStripMenuItem.Click += renameGameObjectToolStripMenuItem_Click;
             // 
+            // editComponentsToolStripMenuItem
+            // 
+            editComponentsToolStripMenuItem.Name = "editComponentsToolStripMenuItem";
+            editComponentsToolStripMenuItem.Size = new Size(196, 22);
+            editComponentsToolStripMenuItem.Text = "Edit Components";
+            editComponentsToolStripMenuItem.Click += editComponentsToolStripMenuItem_Click;
+            // 
+            // removeHierarchyToolStripMenuItem
+            // 
+            removeHierarchyToolStripMenuItem.Name = "removeHierarchyToolStripMenuItem";
+            removeHierarchyToolStripMenuItem.ShortcutKeyDisplayString = "DEL";
+            removeHierarchyToolStripMenuItem.ShortcutKeys = Keys.Delete;
+            removeHierarchyToolStripMenuItem.Size = new Size(196, 22);
+            removeHierarchyToolStripMenuItem.Text = "Remove hierarchy";
+            removeHierarchyToolStripMenuItem.Click += removeHierarchyToolStripMenuItem_Click;
+            // 
+            // toolStripSeparator2
+            // 
+            toolStripSeparator2.Name = "toolStripSeparator2";
+            toolStripSeparator2.Size = new Size(193, 6);
+            // 
             // createGameObjectNodeStripMenuItem
             // 
             createGameObjectNodeStripMenuItem.Name = "createGameObjectNodeStripMenuItem";
@@ -189,20 +231,18 @@
             createGameObjectNodeStripMenuItem.Text = "Create GameObject";
             createGameObjectNodeStripMenuItem.Click += createGameObjectNodeStripMenuItem_Click;
             // 
-            // editGameObjectToolStripMenuItem
+            // gameObjectTreeView
             // 
-            editGameObjectToolStripMenuItem.Name = "editGameObjectToolStripMenuItem";
-            editGameObjectToolStripMenuItem.Size = new Size(196, 22);
-            editGameObjectToolStripMenuItem.Text = "Edit";
-            editGameObjectToolStripMenuItem.Click += editGameObjectToolStripMenuItem_Click;
-            // 
-            // removeHierarchyToolStripMenuItem
-            // 
-            removeHierarchyToolStripMenuItem.Name = "removeHierarchyToolStripMenuItem";
-            removeHierarchyToolStripMenuItem.ShortcutKeyDisplayString = "DEL";
-            removeHierarchyToolStripMenuItem.Size = new Size(196, 22);
-            removeHierarchyToolStripMenuItem.Text = "Remove hierarchy";
-            removeHierarchyToolStripMenuItem.Click += removeHierarchyToolStripMenuItem_Click;
+            gameObjectTreeView.AllowDrop = true;
+            gameObjectTreeView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            gameObjectTreeView.CheckBoxes = true;
+            gameObjectTreeView.ContextMenuStrip = treeViewMenuStrip;
+            gameObjectTreeView.HideSelection = false;
+            gameObjectTreeView.LabelEdit = true;
+            gameObjectTreeView.Location = new Point(12, 27);
+            gameObjectTreeView.Name = "gameObjectTreeView";
+            gameObjectTreeView.Size = new Size(685, 389);
+            gameObjectTreeView.TabIndex = 4;
             // 
             // MainWindow
             // 
@@ -211,10 +251,10 @@
             ClientSize = new Size(709, 428);
             Controls.Add(gameObjectTreeView);
             Controls.Add(menuStrip1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
             Margin = new Padding(3, 2, 3, 2);
             Name = "MainWindow";
-            ShowIcon = false;
             StartPosition = FormStartPosition.CenterScreen;
             Text = "GameObjectHierarchyTool";
             menuStrip1.ResumeLayout(false);
@@ -236,7 +276,6 @@
         private SaveFileDialog saveAssetsDialog;
         private SaveFileDialog saveGhDialog;
         private OpenFileDialog openGhDialog;
-        private TreeView gameObjectTreeView;
         private ContextMenuStrip nodeMenuStrip;
         private ToolStripMenuItem exportToFileToolStripMenuItem;
         private ToolStripMenuItem importToolStripMenuItem;
@@ -247,5 +286,11 @@
         private ToolStripMenuItem createGameObjectToolStripMenuItem;
         private ToolStripMenuItem createGameObjectNodeStripMenuItem;
         private ToolStripMenuItem editGameObjectToolStripMenuItem;
+        private ToolStripMenuItem editComponentsToolStripMenuItem;
+        private ToolStripMenuItem importTreeViewMenuItem;
+        private ToolStripMenuItem importNodeMenuItem;
+        private ToolStripSeparator toolStripSeparator1;
+        private ToolStripSeparator toolStripSeparator2;
+        private TreeViewEx.TreeViewEx gameObjectTreeView;
     }
 }

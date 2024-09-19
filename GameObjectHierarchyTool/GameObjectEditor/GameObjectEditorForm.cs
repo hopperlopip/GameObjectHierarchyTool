@@ -1,8 +1,7 @@
 ﻿using AssetsTools.NET;
 using AssetsTools.NET.Extra;
-using GameObjectHierarchyTool.GameObjectEditor;
 
-namespace GameObjectHierarchyTool
+namespace GameObjectHierarchyTool.GameObjectEditor
 {
     public partial class GameObjectEditorForm : Form
     {
@@ -14,9 +13,10 @@ namespace GameObjectHierarchyTool
             get => _gameObjectEditorParams.GameObjectBase;
         }
 
-        public GameObjectEditorForm(AssetTypeValueField gameObjectBase, long pathId)
+        public GameObjectEditorForm(string gameObjectName, AssetTypeValueField gameObjectBase, long pathId)
         {
             InitializeComponent();
+            Text += $" - {gameObjectName}";
             _gameObjectEditorParams = new GameObjectEditorParams(gameObjectBase);
 
             nameTextBox.Text = _gameObjectEditorParams.Name;
@@ -29,6 +29,11 @@ namespace GameObjectHierarchyTool
         private void applyButton_Click(object sender, EventArgs e)
         {
             applied = true;
+            Close();
+        }
+
+        private void cancelButton_Click(object sender, EventArgs e)
+        {
             Close();
         }
 

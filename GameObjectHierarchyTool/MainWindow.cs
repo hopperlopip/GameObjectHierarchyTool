@@ -1,5 +1,7 @@
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
+using GameObjectHierarchyTool.ComponentEditor;
+using GameObjectHierarchyTool.GameObjectEditor;
 
 namespace GameObjectHierarchyTool
 {
@@ -17,6 +19,7 @@ namespace GameObjectHierarchyTool
         AssetsFile assetsFile;
         string assetsPath;
         GameObjectHelper gameObjectHelper;
+        TreeNode? draggedNode;
 
         public MainWindow()
         {
@@ -24,35 +27,34 @@ namespace GameObjectHierarchyTool
             initFormTitle = Text;
             FormClosing += MainWindow_FormClosing;
             gameObjectTreeView.AfterCheck += GameObjectTreeView_AfterCheck;
-            gameObjectTreeView.MouseUp += GameObjectTreeView_MouseUp;
+            gameObjectTreeView.MouseDown += GameObjectTreeView_MouseDown;
             gameObjectTreeView.AfterLabelEdit += GameObjectTreeView_AfterLabelEdit;
-            gameObjectTreeView.KeyUp += GameObjectTreeView_KeyUp;
+            gameObjectTreeView.KeyDown += GameObjectTreeView_KeyDown;
 
             gameObjectTreeView.ItemDrag += GameObjectTreeView_ItemDrag;
             gameObjectTreeView.DragEnter += GameObjectTreeView_DragEnter;
             gameObjectTreeView.DragOver += GameObjectTreeView_DragOver;
             gameObjectTreeView.DragDrop += GameObjectTreeView_DragDrop;
+            gameObjectTreeView.DragLeave += GameObjectTreeView_DragLeave;
         }
 
-        private void GameObjectTreeView_KeyUp(object? sender, KeyEventArgs e)
+        private void GameObjectTreeView_KeyDown(object? sender, KeyEventArgs e)
         {
-            TreeNode node = gameObjectTreeView.SelectedNode;
-            if (node == null)
-            {
+            if (gameObjectTreeView.SelectedNode == null)
                 return;
-            }
+
             switch (e.KeyCode)
             {
                 case Keys.F2:
-                    RenameNode(node);
+                    renameGameObjectToolStripMenuItem.PerformClick();
                     break;
                 case Keys.Delete:
-                    RemoveNode(node);
+                    removeHierarchyToolStripMenuItem.PerformClick();
                     break;
             }
         }
 
-        private void GameObjectTreeView_MouseUp(object? sender, MouseEventArgs e)
+        private void GameObjectTreeView_MouseDown(object? sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Right)
             {
@@ -93,7 +95,7 @@ namespace GameObjectHierarchyTool
             }
             catch
             {
-                MessageBox.Show("Your assets file is corrupted", ERROR_TITLE, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Your assets file is corrupted.", ERROR_TITLE, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             assetsFile = fileInstance.file;
@@ -191,6 +193,8 @@ namespace GameObjectHierarchyTool
                 manager.UnloadAll();
             }
             LoadAssetsFile(assetsPath);
+            if (assetsFile == null)
+                return;
             SetModifiedState(ModifiedState.None);
         }
 
@@ -211,6 +215,7 @@ namespace GameObjectHierarchyTool
         {
             if (!IsAssetsFileLoaded())
                 return;
+            saveAssetsDialog.FileName = Path.GetFileName(assetsPath);
             if (saveAssetsDialog.ShowDialog() == DialogResult.Cancel)
             {
                 return;
@@ -256,9 +261,41 @@ namespace GameObjectHierarchyTool
         {
             if (!IsAssetsFileLoaded())
                 return;
+            bool importSuccess = ImportHierarchy(null);
+            if (!importSuccess)
+                return;
+            SetModifiedState(ModifiedState.Modified);
+        }
+
+        private void importTreeViewMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!IsAssetsFileLoaded())
+                return;
+            bool importSuccess = ImportHierarchy(null);
+            if (!importSuccess)
+                return;
+            SetModifiedState(ModifiedState.Modified);
+        }
+
+        private void importNodeMenuItem_Click(object sender, EventArgs e)
+        {
+            TreeNode parentNode = gameObjectTreeView.SelectedNode;
+            bool importSuccess = ImportHierarchy(parentNode);
+            if (!importSuccess)
+                return;
+            SetModifiedState(ModifiedState.Modified);
+        }
+
+        /// <summary>
+        /// Imports <see cref="GameObjectHierarchy"/> file to a specified node.
+        /// </summary>
+        /// <param name="parentNode">Node where the hierarchy will be imported.</param>
+        /// <returns>Success of the operation: <see langword="true"/> is operation was success; otherwise <see langword="false"/>.</returns>
+        private bool ImportHierarchy(TreeNode? parentNode)
+        {
             if (openGhDialog.ShowDialog() == DialogResult.Cancel)
             {
-                return;
+                return false;
             }
             byte[] gameObjectHierarchyBytes = File.ReadAllBytes(openGhDialog.FileName);
             GameObjectHierarchy gameObjectHierarchy;
@@ -269,19 +306,43 @@ namespace GameObjectHierarchyTool
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
-                return;
+                return false;
             }
-            long gameObjectPathId = gameObjectHelper.CreateHierarchy(gameObjectHierarchy, 0);
+            ImportHierarchy(parentNode, gameObjectHierarchy);
+            return true;
+        }
+
+        /// <summary>
+        /// Imports <see cref="GameObjectHierarchy"/> file to a specified node.
+        /// </summary>
+        /// <param name="parentNode">Node where the hierarchy will be imported.</param>
+        /// <param name="gameObjectHierarchy"><see cref="GameObjectHierarchy"/> which will be imported.</param>
+        private void ImportHierarchy(TreeNode? parentNode, GameObjectHierarchy gameObjectHierarchy)
+        {
+            long gameObjectPathId;
+            TreeNodeCollection parentNodes;
+            if (parentNode != null)
+            {
+                long fatherPathId = (long)parentNode.Tag;
+                gameObjectPathId = gameObjectHelper.CreateHierarchy(gameObjectHierarchy, fatherPathId);
+                parentNodes = parentNode.Nodes;
+            }
+            else
+            {
+                gameObjectPathId = gameObjectHelper.CreateHierarchy(gameObjectHierarchy);
+                parentNodes = gameObjectTreeView.Nodes;
+            }
             List<long> gameObjectPathIds = new List<long> { gameObjectPathId };
-            gameObjectTreeView.Nodes.AddRange(BuildNodeTree(gameObjectPathIds).ToArray());
-            SetModifiedState(ModifiedState.Modified);
+            TreeNode node = BuildNodeTree(gameObjectPathIds)[0];
+            parentNodes.Add(node);
+            gameObjectTreeView.SelectedNode = node;
         }
 
         private bool IsAssetsFileLoaded()
         {
             if (assetsFile == null)
             {
-                MessageBox.Show("You should open \".assets\" or level file first.", ERROR_TITLE, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("You should open level or \".assets\" file first.", ERROR_TITLE, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
             return true;
@@ -313,7 +374,14 @@ namespace GameObjectHierarchyTool
             if (e.Label != null)
             {
                 long gameObjectPathId = (long)e.Node.Tag;
-                gameObjectHelper.RenameGameObject(gameObjectPathId, e.Label);
+                string gameObjectNewName = e.Label;
+                if (gameObjectNewName == string.Empty)
+                {
+                    gameObjectNewName = "GameObject";
+                    e.CancelEdit = true;
+                    e.Node.Text = gameObjectNewName;
+                }
+                gameObjectHelper.RenameGameObject(gameObjectPathId, gameObjectNewName);
                 SetModifiedState(ModifiedState.Modified);
             }
         }
@@ -343,6 +411,7 @@ namespace GameObjectHierarchyTool
             {
                 return;
             }
+            this.draggedNode = draggedNode;
             draggedNode.ForeColor = Color.Gray;
             e.Effect = e.AllowedEffect;
         }
@@ -351,6 +420,8 @@ namespace GameObjectHierarchyTool
         {
             gameObjectTreeView.Scroll();
             Point targetPoint = gameObjectTreeView.PointToClient(new Point(e.X, e.Y));
+            if (draggedNode != null && draggedNode.ForeColor != Color.Gray)
+                draggedNode.ForeColor = Color.Gray;
             gameObjectTreeView.SelectedNode = gameObjectTreeView.GetNodeAt(targetPoint);
         }
 
@@ -390,9 +461,15 @@ namespace GameObjectHierarchyTool
             gameObjectTreeView.SelectedNode = draggedNode;
         }
 
-        public static bool ContainsDraggedNode(TreeNode draggedNode, TreeNode targedNode)
+        private void GameObjectTreeView_DragLeave(object? sender, EventArgs e)
         {
-            TreeNode parent = targedNode.Parent;
+            if (draggedNode != null && draggedNode.ForeColor != Color.Empty)
+                draggedNode.ForeColor = Color.Empty;
+        }
+
+        public static bool ContainsDraggedNode(TreeNode draggedNode, TreeNode targetNode)
+        {
+            TreeNode parent = targetNode.Parent;
             while (parent != null)
             {
                 if (draggedNode.Equals(parent))
@@ -424,15 +501,18 @@ namespace GameObjectHierarchyTool
             AssetTypeValueField gameObjectBase = manager.GetBaseField(fileInstance, gameObjectInfo);
             gameObjectBase["m_Name"].AsString = "GameObject";
             gameObjectInfo.SetNewData(gameObjectBase);
-            var gameObjectEditorForm = new GameObjectEditorForm(gameObjectBase, gameObjectInfo.PathId);
+
+            //Showing the GameObject Editor Form
+            /*string gameObjectName = gameObjectBase["m_Name"].AsString;
+            var gameObjectEditorForm = new GameObjectEditorForm(gameObjectName, gameObjectBase, gameObjectInfo.PathId);
             gameObjectEditorForm.ShowDialog();
             if (gameObjectEditorForm.applied)
             {
                 gameObjectInfo.SetNewData(gameObjectEditorForm.GameObjectBase);
-            }
+            }*/
 
             //Creating Transform Component of the GameObject
-            long transformPathId = assetsFile.AssetInfos.Count + 1;
+            long transformPathId = gameObjectHelper.GetNewPathId();
             AssetFileInfo transformInfo = gameObjectHelper.CreateTransform(transformPathId);
             AssetTypeValueField transformBase = manager.GetBaseField(fileInstance, transformInfo);
             transformBase["m_LocalRotation.w"].AsFloat = 1f;
@@ -453,8 +533,9 @@ namespace GameObjectHierarchyTool
             gameObjectHelper.ChangeGameObjectFather(gameObjectPathId, fatherPathId);
         }
 
-        private void AddNode(TreeNode? parentNode, long gameObjectPathId, string gameObjectName, bool gameObjectActiveState)
+        private TreeNode AddNode(TreeNode? parentNode, long gameObjectPathId, string gameObjectName, bool gameObjectActiveState)
         {
+            gameObjectTreeView.AfterCheck -= GameObjectTreeView_AfterCheck;
             TreeNode node = new TreeNode(gameObjectName);
             node.Tag = gameObjectPathId;
             node.Checked = gameObjectHelper.GetActiveState(gameObjectPathId);
@@ -467,17 +548,20 @@ namespace GameObjectHierarchyTool
             {
                 gameObjectTreeView.Nodes.Add(node);
             }
+            gameObjectTreeView.AfterCheck += GameObjectTreeView_AfterCheck;
+            return node;
         }
 
         private void createGameObjectNodeStripMenuItem_Click(object sender, EventArgs e)
         {
-            long gameObjectPathId = assetsFile.AssetInfos.Count + 1;
+            long gameObjectPathId = gameObjectHelper.GetNewPathId();
             TreeNode parentNode = gameObjectTreeView.SelectedNode;
             long fatherPathId = (long)parentNode.Tag;
             CreateEmptyGameObject(gameObjectPathId, fatherPathId);
             string gameObjectName = gameObjectHelper.GetGameObjectName(gameObjectPathId);
             bool gameObjectActiveState = gameObjectHelper.GetActiveState(gameObjectPathId);
-            AddNode(parentNode, gameObjectPathId, gameObjectName, gameObjectActiveState);
+            TreeNode node = AddNode(parentNode, gameObjectPathId, gameObjectName, gameObjectActiveState);
+            gameObjectTreeView.SelectedNode = node;
             SetModifiedState(ModifiedState.Modified);
         }
 
@@ -485,27 +569,43 @@ namespace GameObjectHierarchyTool
         {
             if (!IsAssetsFileLoaded())
                 return;
-            long gameObjectPathId = assetsFile.AssetInfos.Count + 1;
+            long gameObjectPathId = gameObjectHelper.GetNewPathId();
             CreateEmptyGameObject(gameObjectPathId, 0);
             string gameObjectName = gameObjectHelper.GetGameObjectName(gameObjectPathId);
             bool gameObjectActiveState = gameObjectHelper.GetActiveState(gameObjectPathId);
-            AddNode(null, gameObjectPathId, gameObjectName, gameObjectActiveState);
+            TreeNode node = AddNode(null, gameObjectPathId, gameObjectName, gameObjectActiveState);
+            gameObjectTreeView.SelectedNode = node;
             SetModifiedState(ModifiedState.Modified);
         }
 
         private void editGameObjectToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            gameObjectTreeView.AfterCheck -= GameObjectTreeView_AfterCheck;
             TreeNode node = gameObjectTreeView.SelectedNode;
             long gameObjectPathId = (long)node.Tag;
             AssetFileInfo gameObjectInfo = assetsFile.GetAssetInfo(gameObjectPathId);
             AssetTypeValueField gameObjectBase = manager.GetBaseField(fileInstance, gameObjectInfo);
-            GameObjectEditorForm gameObjectEditorForm = new GameObjectEditorForm(gameObjectBase, gameObjectPathId);
+            GameObjectEditorForm gameObjectEditorForm = new GameObjectEditorForm(node.Text, gameObjectBase, gameObjectPathId);
             gameObjectEditorForm.ShowDialog();
             if (gameObjectEditorForm.applied)
             {
                 gameObjectInfo.SetNewData(gameObjectEditorForm.GameObjectBase);
                 node.Text = gameObjectHelper.GetGameObjectName(gameObjectPathId);
                 node.Checked = gameObjectHelper.GetActiveState(gameObjectPathId);
+                SetModifiedState(ModifiedState.Modified);
+            }
+            gameObjectTreeView.AfterCheck += GameObjectTreeView_AfterCheck;
+        }
+
+        private void editComponentsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TreeNode node = gameObjectTreeView.SelectedNode;
+            long gameObjectPathId = (long)node.Tag;
+            List<AssetExternal> components = gameObjectHelper.GetComponents(gameObjectPathId);
+            ComponentEditorForm componentEditorForm = new ComponentEditorForm(manager, fileInstance, gameObjectPathId, node.Text, components);
+            componentEditorForm.ShowDialog();
+            if (componentEditorForm.modified)
+            {
                 SetModifiedState(ModifiedState.Modified);
             }
         }

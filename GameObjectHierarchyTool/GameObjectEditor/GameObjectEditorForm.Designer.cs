@@ -1,4 +1,4 @@
-﻿namespace GameObjectHierarchyTool
+﻿namespace GameObjectHierarchyTool.GameObjectEditor
 {
     partial class GameObjectEditorForm
     {
@@ -38,6 +38,7 @@
             pathIdGroupBox = new GroupBox();
             pathIdTextBox = new TextBox();
             applyButton = new Button();
+            cancelButton = new Button();
             nameGroupBox.SuspendLayout();
             layerGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)layerUpDown).BeginInit();
@@ -52,7 +53,7 @@
             nameGroupBox.Controls.Add(nameTextBox);
             nameGroupBox.Location = new Point(12, 12);
             nameGroupBox.Name = "nameGroupBox";
-            nameGroupBox.Size = new Size(321, 46);
+            nameGroupBox.Size = new Size(354, 46);
             nameGroupBox.TabIndex = 0;
             nameGroupBox.TabStop = false;
             nameGroupBox.Text = "Name";
@@ -62,7 +63,7 @@
             nameTextBox.Dock = DockStyle.Fill;
             nameTextBox.Location = new Point(3, 19);
             nameTextBox.Name = "nameTextBox";
-            nameTextBox.Size = new Size(315, 23);
+            nameTextBox.Size = new Size(348, 23);
             nameTextBox.TabIndex = 10;
             nameTextBox.TabStop = false;
             nameTextBox.TextChanged += nameTextBox_TextChanged;
@@ -73,7 +74,7 @@
             layerGroupBox.Controls.Add(layerUpDown);
             layerGroupBox.Location = new Point(12, 116);
             layerGroupBox.Name = "layerGroupBox";
-            layerGroupBox.Size = new Size(321, 46);
+            layerGroupBox.Size = new Size(354, 46);
             layerGroupBox.TabIndex = 1;
             layerGroupBox.TabStop = false;
             layerGroupBox.Text = "Layer";
@@ -84,7 +85,7 @@
             layerUpDown.Location = new Point(3, 19);
             layerUpDown.Maximum = new decimal(new int[] { -1, 0, 0, 0 });
             layerUpDown.Name = "layerUpDown";
-            layerUpDown.Size = new Size(315, 23);
+            layerUpDown.Size = new Size(348, 23);
             layerUpDown.TabIndex = 0;
             layerUpDown.ValueChanged += layerUpDown_ValueChanged;
             // 
@@ -94,7 +95,7 @@
             tagGroupBox.Controls.Add(tagUpDown);
             tagGroupBox.Location = new Point(12, 168);
             tagGroupBox.Name = "tagGroupBox";
-            tagGroupBox.Size = new Size(321, 46);
+            tagGroupBox.Size = new Size(354, 46);
             tagGroupBox.TabIndex = 2;
             tagGroupBox.TabStop = false;
             tagGroupBox.Text = "Tag";
@@ -105,7 +106,7 @@
             tagUpDown.Location = new Point(3, 19);
             tagUpDown.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
             tagUpDown.Name = "tagUpDown";
-            tagUpDown.Size = new Size(315, 23);
+            tagUpDown.Size = new Size(348, 23);
             tagUpDown.TabIndex = 0;
             tagUpDown.ValueChanged += tagUpDown_ValueChanged;
             // 
@@ -122,10 +123,11 @@
             // 
             // pathIdGroupBox
             // 
+            pathIdGroupBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             pathIdGroupBox.Controls.Add(pathIdTextBox);
             pathIdGroupBox.Location = new Point(12, 64);
             pathIdGroupBox.Name = "pathIdGroupBox";
-            pathIdGroupBox.Size = new Size(321, 46);
+            pathIdGroupBox.Size = new Size(354, 46);
             pathIdGroupBox.TabIndex = 4;
             pathIdGroupBox.TabStop = false;
             pathIdGroupBox.Text = "Path ID";
@@ -136,32 +138,46 @@
             pathIdTextBox.Location = new Point(3, 19);
             pathIdTextBox.Name = "pathIdTextBox";
             pathIdTextBox.ReadOnly = true;
-            pathIdTextBox.Size = new Size(315, 23);
+            pathIdTextBox.Size = new Size(348, 23);
             pathIdTextBox.TabIndex = 0;
             // 
             // applyButton
             // 
+            applyButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             applyButton.Location = new Point(12, 245);
             applyButton.Name = "applyButton";
-            applyButton.Size = new Size(321, 40);
+            applyButton.Size = new Size(354, 40);
             applyButton.TabIndex = 1;
             applyButton.Text = "Apply";
             applyButton.UseVisualStyleBackColor = true;
             applyButton.Click += applyButton_Click;
             // 
+            // cancelButton
+            // 
+            cancelButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            cancelButton.Location = new Point(12, 291);
+            cancelButton.Name = "cancelButton";
+            cancelButton.Size = new Size(354, 40);
+            cancelButton.TabIndex = 5;
+            cancelButton.Text = "Cancel";
+            cancelButton.UseVisualStyleBackColor = true;
+            cancelButton.Click += cancelButton_Click;
+            // 
             // GameObjectEditorForm
             // 
+            AcceptButton = applyButton;
             AutoScaleDimensions = new SizeF(96F, 96F);
             AutoScaleMode = AutoScaleMode.Dpi;
-            ClientSize = new Size(345, 297);
+            CancelButton = cancelButton;
+            ClientSize = new Size(378, 343);
+            Controls.Add(cancelButton);
             Controls.Add(applyButton);
             Controls.Add(pathIdGroupBox);
             Controls.Add(isActiveCheckBox);
             Controls.Add(tagGroupBox);
             Controls.Add(layerGroupBox);
             Controls.Add(nameGroupBox);
-            FormBorderStyle = FormBorderStyle.FixedSingle;
-            MaximizeBox = false;
+            MinimumSize = new Size(0, 382);
             Name = "GameObjectEditorForm";
             ShowIcon = false;
             StartPosition = FormStartPosition.CenterParent;
@@ -190,5 +206,6 @@
         private NumericUpDown layerUpDown;
         private NumericUpDown tagUpDown;
         private Button applyButton;
+        private Button cancelButton;
     }
 }

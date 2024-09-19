@@ -1,6 +1,4 @@
-﻿using AssetsTools.NET;
-
-namespace GameObjectHierarchyTool
+﻿namespace GameObjectHierarchyTool
 {
     public partial class GhEditorForm : Form
     {
@@ -11,6 +9,7 @@ namespace GameObjectHierarchyTool
 
         string ghFileName;
         GameObjectHierarchy rootGameObjectHierarchy;
+        TreeNode? draggedNode;
 
         public GhEditorForm(string ghFileName, GameObjectHierarchy rootGameObjectHierarchy)
         {
@@ -22,14 +21,15 @@ namespace GameObjectHierarchyTool
             SetModifiedState(ModifiedState.None);
             RebuildTreeView();
             ghTreeView.AfterCheck += GhTreeView_AfterCheck;
-            ghTreeView.MouseUp += GhTreeView_MouseUp;
+            ghTreeView.MouseDown += GhTreeView_MouseDown;
             ghTreeView.AfterLabelEdit += GhTreeView_AfterLabelEdit;
-            ghTreeView.KeyUp += GhTreeView_KeyUp;
+            ghTreeView.KeyDown += GhTreeView_KeyDown;
 
             ghTreeView.ItemDrag += GhTreeView_ItemDrag;
             ghTreeView.DragEnter += GhTreeView_DragEnter;
             ghTreeView.DragOver += GhTreeView_DragOver;
             ghTreeView.DragDrop += GhTreeView_DragDrop;
+            ghTreeView.DragLeave += GhTreeView_DragLeave;
         }
 
         private void GhEditorForm_FormClosing(object? sender, FormClosingEventArgs e)
@@ -50,20 +50,18 @@ namespace GameObjectHierarchyTool
             }
         }
 
-        private void GhTreeView_KeyUp(object? sender, KeyEventArgs e)
+        private void GhTreeView_KeyDown(object? sender, KeyEventArgs e)
         {
-            TreeNode node = ghTreeView.SelectedNode;
-            if (node == null)
-            {
+            if (ghTreeView.SelectedNode == null)
                 return;
-            }
+
             switch (e.KeyCode)
             {
                 case Keys.F2:
-                    RenameNode(node);
+                    renameToolStripMenuItem.PerformClick();
                     break;
                 case Keys.Delete:
-                    RemoveNode(node);
+                    removeHierarchyToolStripMenuItem.PerformClick();
                     break;
             }
         }
@@ -89,7 +87,7 @@ namespace GameObjectHierarchyTool
             }
         }
 
-        private void GhTreeView_MouseUp(object? sender, MouseEventArgs e)
+        private void GhTreeView_MouseDown(object? sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Right)
             {
@@ -107,7 +105,9 @@ namespace GameObjectHierarchyTool
             ghTreeView.Nodes.Clear();
             GameObjectHierarchy gameObjectHierarchy = rootGameObjectHierarchy;
             List<GameObjectHierarchy> gameObjectHierarchies = new List<GameObjectHierarchy>() { gameObjectHierarchy };
-            ghTreeView.Nodes.AddRange(BuildNodeTree(gameObjectHierarchies).ToArray());
+            TreeNode mainNode = BuildNodeTree(gameObjectHierarchies)[0];
+            ghTreeView.Nodes.Add(mainNode);
+            mainNode.Expand();
         }
 
         private List<TreeNode> BuildNodeTree(List<GameObjectHierarchy> gameObjectHierarchies)
@@ -159,6 +159,7 @@ namespace GameObjectHierarchyTool
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            saveGhDialog.FileName = Path.GetFileName(this.ghFileName);
             if (saveGhDialog.ShowDialog() == DialogResult.Cancel)
             {
                 return;
@@ -195,7 +196,14 @@ namespace GameObjectHierarchyTool
             if (e.Label != null)
             {
                 GameObjectHierarchy gameObjectHierarchy = (GameObjectHierarchy)e.Node.Tag;
-                gameObjectHierarchy.gameObject.name = e.Label;
+                string gameObjectNewName = e.Label;
+                if (gameObjectNewName == string.Empty)
+                {
+                    gameObjectNewName = "GameObject";
+                    e.CancelEdit = true;
+                    e.Node.Text = gameObjectNewName;
+                }
+                gameObjectHierarchy.gameObject.name = gameObjectNewName;
                 SetModifiedState(ModifiedState.Modified);
             }
         }
@@ -220,6 +228,7 @@ namespace GameObjectHierarchyTool
             {
                 return;
             }
+            this.draggedNode = draggedNode;
             draggedNode.ForeColor = Color.Gray;
             e.Effect = e.AllowedEffect;
         }
@@ -259,6 +268,20 @@ namespace GameObjectHierarchyTool
 
             draggedNode.ForeColor = Color.Empty;
             ghTreeView.SelectedNode = draggedNode;
+        }
+
+        private void GhTreeView_DragLeave(object? sender, EventArgs e)
+        {
+            if (draggedNode != null && draggedNode.ForeColor != Color.Empty)
+                draggedNode.ForeColor = Color.Empty;
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+
+            //We don't close the whole application because the GH Form can be opened from the MainForm.
+            //Application.Exit();
         }
     }
 }

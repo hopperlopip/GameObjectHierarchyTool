@@ -29,30 +29,20 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            ghTreeView = new TreeView();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GhEditorForm));
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
             saveToolStripMenuItem = new ToolStripMenuItem();
             saveAsToolStripMenuItem = new ToolStripMenuItem();
+            exitToolStripMenuItem = new ToolStripMenuItem();
             saveGhDialog = new SaveFileDialog();
             nodeMenuStrip = new ContextMenuStrip(components);
             renameToolStripMenuItem = new ToolStripMenuItem();
             removeHierarchyToolStripMenuItem = new ToolStripMenuItem();
+            ghTreeView = new TreeViewEx.TreeViewEx();
             menuStrip1.SuspendLayout();
             nodeMenuStrip.SuspendLayout();
             SuspendLayout();
-            // 
-            // ghTreeView
-            // 
-            ghTreeView.AllowDrop = true;
-            ghTreeView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            ghTreeView.CheckBoxes = true;
-            ghTreeView.LabelEdit = true;
-            ghTreeView.Location = new Point(10, 20);
-            ghTreeView.Margin = new Padding(3, 2, 3, 2);
-            ghTreeView.Name = "ghTreeView";
-            ghTreeView.Size = new Size(642, 363);
-            ghTreeView.TabIndex = 0;
             // 
             // menuStrip1
             // 
@@ -67,7 +57,7 @@
             // 
             // fileToolStripMenuItem
             // 
-            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { saveToolStripMenuItem, saveAsToolStripMenuItem });
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { saveToolStripMenuItem, saveAsToolStripMenuItem, exitToolStripMenuItem });
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             fileToolStripMenuItem.Size = new Size(37, 20);
             fileToolStripMenuItem.Text = "File";
@@ -75,16 +65,25 @@
             // saveToolStripMenuItem
             // 
             saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            saveToolStripMenuItem.Size = new Size(123, 22);
+            saveToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.S;
+            saveToolStripMenuItem.Size = new Size(186, 22);
             saveToolStripMenuItem.Text = "Save";
             saveToolStripMenuItem.Click += saveToolStripMenuItem_Click;
             // 
             // saveAsToolStripMenuItem
             // 
             saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            saveAsToolStripMenuItem.Size = new Size(123, 22);
+            saveAsToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.Alt | Keys.S;
+            saveAsToolStripMenuItem.Size = new Size(186, 22);
             saveAsToolStripMenuItem.Text = "Save As...";
             saveAsToolStripMenuItem.Click += saveAsToolStripMenuItem_Click;
+            // 
+            // exitToolStripMenuItem
+            // 
+            exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            exitToolStripMenuItem.Size = new Size(186, 22);
+            exitToolStripMenuItem.Text = "Exit";
+            exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
             // saveGhDialog
             // 
@@ -110,9 +109,21 @@
             // 
             removeHierarchyToolStripMenuItem.Name = "removeHierarchyToolStripMenuItem";
             removeHierarchyToolStripMenuItem.ShortcutKeyDisplayString = "DEL";
+            removeHierarchyToolStripMenuItem.ShortcutKeys = Keys.Delete;
             removeHierarchyToolStripMenuItem.Size = new Size(196, 22);
             removeHierarchyToolStripMenuItem.Text = "Remove hierarchy";
             removeHierarchyToolStripMenuItem.Click += removeHierarchyToolStripMenuItem_Click;
+            // 
+            // ghTreeView
+            // 
+            ghTreeView.AllowDrop = true;
+            ghTreeView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            ghTreeView.CheckBoxes = true;
+            ghTreeView.LabelEdit = true;
+            ghTreeView.Location = new Point(12, 27);
+            ghTreeView.Name = "ghTreeView";
+            ghTreeView.Size = new Size(638, 352);
+            ghTreeView.TabIndex = 2;
             // 
             // GhEditorForm
             // 
@@ -121,10 +132,10 @@
             ClientSize = new Size(662, 391);
             Controls.Add(ghTreeView);
             Controls.Add(menuStrip1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
             Margin = new Padding(3, 2, 3, 2);
             Name = "GhEditorForm";
-            ShowIcon = false;
             StartPosition = FormStartPosition.CenterScreen;
             Text = "GH Editor Form";
             menuStrip1.ResumeLayout(false);
@@ -135,8 +146,6 @@
         }
 
         #endregion
-
-        private TreeView ghTreeView;
         private MenuStrip menuStrip1;
         private ToolStripMenuItem fileToolStripMenuItem;
         private ToolStripMenuItem saveToolStripMenuItem;
@@ -145,5 +154,7 @@
         private ContextMenuStrip nodeMenuStrip;
         private ToolStripMenuItem removeHierarchyToolStripMenuItem;
         private ToolStripMenuItem renameToolStripMenuItem;
+        private ToolStripMenuItem exitToolStripMenuItem;
+        private TreeViewEx.TreeViewEx ghTreeView;
     }
 }
