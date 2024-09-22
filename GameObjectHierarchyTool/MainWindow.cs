@@ -15,9 +15,9 @@ namespace GameObjectHierarchyTool
         const string QUESTION_TITLE = "Question";
 
         AssetsManager manager = new();
-        AssetsFileInstance fileInstance;
-        AssetsFile assetsFile;
-        string assetsPath;
+        AssetsFileInstance? fileInstance;
+        AssetsFile? assetsFile;
+        string assetsPath = string.Empty;
         GameObjectHelper gameObjectHelper;
         TreeNode? draggedNode;
 
@@ -107,6 +107,8 @@ namespace GameObjectHierarchyTool
         private void RebuildTreeView()
         {
             gameObjectTreeView.Nodes.Clear();
+            if (assetsFile == null)
+                return;
             List<long> rootGameObjectsPathIds = GetRootGameObjectPathIds(assetsFile.AssetInfos);
             gameObjectTreeView.Nodes.AddRange(BuildNodeTree(rootGameObjectsPathIds).ToArray());
         }
@@ -148,8 +150,10 @@ namespace GameObjectHierarchyTool
             return rootGameObjectsPathIds;
         }
 
-        private void SaveAssetsFile(AssetsFile assetsFile, string filePath)
+        private void SaveAssetsFile(AssetsFile? assetsFile, string filePath)
         {
+            if (assetsFile == null)
+                return;
             string tmpAssetsFile = $"{filePath}.tmp";
             using (AssetsFileWriter writer = new AssetsFileWriter(tmpAssetsFile))
             {
@@ -184,18 +188,24 @@ namespace GameObjectHierarchyTool
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (openAssetsDialog.ShowDialog() == DialogResult.Cancel)
-            {
                 return;
-            }
-            assetsPath = openAssetsDialog.FileName;
-            if (assetsFile != null)
-            {
-                manager.UnloadAll();
-            }
-            LoadAssetsFile(assetsPath);
+            string newAssetsPath = openAssetsDialog.FileName;
+            CloseAssetsFile();
+            LoadAssetsFile(newAssetsPath);
             if (assetsFile == null)
                 return;
+            assetsPath = newAssetsPath;
             SetModifiedState(ModifiedState.None);
+        }
+
+        private void CloseAssetsFile()
+        {
+            if (assetsFile == null)
+                return;
+            manager.UnloadAll();
+            assetsFile = null;
+            gameObjectTreeView.Nodes.Clear();
+            Text = initFormTitle;
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
