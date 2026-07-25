@@ -74,7 +74,7 @@ namespace GameObjectHierarchyTool
                 switch (MessageBox.Show("Would you like to save changes before exit?", QUESTION_TITLE, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question))
                 {
                     case DialogResult.Yes:
-                        SaveAssetsFile(assetsFile, assetsPath);
+                        SaveAssetsFile(assetsFile);
                         break;
                     case DialogResult.No:
                         break;
@@ -150,18 +150,87 @@ namespace GameObjectHierarchyTool
             return rootGameObjectsPathIds;
         }
 
-        private void SaveAssetsFile(AssetsFile? assetsFile, string filePath)
+        /// <summary>
+        /// Saves assets file 
+        /// </summary>
+        /// <param name="assetsFile"></param>
+        /// <param name="assetsPath"></param>
+        /// <returns>Success of the operation: <see langword="true"/> is operation was success; otherwise <see langword="false"/>.</returns>
+        private bool SaveAssetsFile(AssetsFile? assetsFile)
         {
             if (assetsFile == null)
-                return;
-            string tmpAssetsFile = $"{filePath}.tmp";
+                return false;
+            string assetsPath = GetAssetsFilePath(assetsFile);
+            return SaveAssetsFile(assetsFile, assetsPath);
+        }
+
+        /// <summary>
+        /// Saves assets file to a specified file.
+        /// </summary>
+        /// <param name="assetsFile"></param>
+        /// <param name="assetsPath"></param>
+        /// <param name="newAssetsPath"></param>
+        /// <returns>Success of the operation: <see langword="true"/> is operation was success; otherwise <see langword="false"/>.</returns>
+        private bool SaveAssetsFile(AssetsFile? assetsFile, string newAssetsPath)
+        {
+            if (assetsFile == null)
+                return false;
+            string assetsPath = GetAssetsFilePath(assetsFile);
+            string tmpAssetsFile = $"{newAssetsPath}.tmp";
             using (AssetsFileWriter writer = new AssetsFileWriter(tmpAssetsFile))
             {
                 assetsFile.Write(writer);
             }
             assetsFile.Close();
-            File.Move(tmpAssetsFile, filePath, true);
-            assetsFile.Read(new AssetsFileReader(filePath));
+            if (IsFileLocked(newAssetsPath))
+            {
+                assetsFile.Read(new AssetsFileReader(assetsPath));
+                File.Delete(tmpAssetsFile);
+                MessageBox.Show("Couldn't save because access to the file is denied.", ERROR_TITLE, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+            File.Move(tmpAssetsFile, newAssetsPath, true);
+            assetsFile.Read(new AssetsFileReader(newAssetsPath));
+            return true;
+        }
+
+        private string GetAssetsFilePath(AssetsFile assetsFile)
+        {
+            Stream baseStream = assetsFile.Reader.BaseStream;
+            FileStream fileStream = (FileStream)baseStream;
+            return fileStream.Name;
+        }
+
+        public static bool IsFileLocked(string filePath)
+        {
+            FileInfo fileInfo = new FileInfo(filePath);
+            return IsFileLocked(fileInfo);
+        }
+
+        public static bool IsFileLocked(FileInfo file)
+        {
+            if (!file.Exists)
+                return false;
+
+            try
+            {
+                using (FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    stream.Close();
+                }
+            }
+            catch (IOException)
+            {
+                //the file is unavailable because it is:
+                //still being written to
+                //or being processed by another thread
+                //or does not exist (has already been processed)
+
+                return true;
+            }
+
+            //file is not locked
+            return false;
         }
 
         enum ModifiedState
@@ -217,8 +286,10 @@ namespace GameObjectHierarchyTool
         {
             if (!IsAssetsFileLoaded())
                 return;
-            SaveAssetsFile(assetsFile, assetsPath);
-            SetModifiedState(ModifiedState.Saved);
+            if (SaveAssetsFile(assetsFile))
+            {
+                SetModifiedState(ModifiedState.Saved);
+            }
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -230,9 +301,12 @@ namespace GameObjectHierarchyTool
             {
                 return;
             }
-            SaveAssetsFile(assetsFile, saveAssetsDialog.FileName);
-            assetsPath = saveAssetsDialog.FileName;
-            SetModifiedState(ModifiedState.Saved);
+            string newAssetsPath = saveAssetsDialog.FileName;
+            if (SaveAssetsFile(assetsFile, newAssetsPath))
+            {
+                assetsPath = newAssetsPath;
+                SetModifiedState(ModifiedState.Saved);
+            }
         }
 
         private void exportToFileToolStripMenuItem_Click(object sender, EventArgs e)
