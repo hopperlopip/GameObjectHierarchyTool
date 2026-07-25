@@ -8,6 +8,7 @@ namespace GameObjectHierarchyTool.ComponentEditor
         readonly AssetsManager _manager;
         readonly AssetsFileInstance _fileInstance;
         private AssetExternal _componentExt;
+        private byte[]? _monoBehaviourBytes = null;
 
         public bool AllowEnable
         {
@@ -18,6 +19,8 @@ namespace GameObjectHierarchyTool.ComponentEditor
         {
             get => TypeId == (int)AssetClassID.Transform || TypeId == (int)AssetClassID.RectTransform;
         }
+
+        private bool IsMonoBehaviour => TypeId == (int)AssetClassID.MonoBehaviour;
 
         public bool IsEnabled
         {
@@ -31,7 +34,10 @@ namespace GameObjectHierarchyTool.ComponentEditor
             set
             {
                 if (AllowEnable)
-                    ComponentBase["m_Enabled"].AsBool = value;
+                    if (IsMonoBehaviour)
+                        ChangeMonoBehaviourEnabledState(ComponentBase, value);
+                    else
+                        ComponentBase["m_Enabled"].AsBool = value;
             }
         }
 
@@ -108,6 +114,13 @@ namespace GameObjectHierarchyTool.ComponentEditor
             return monoScriptName;
         }
 
+        private void ChangeMonoBehaviourEnabledState(AssetTypeValueField monoBehaviourBase, bool enabledState)
+        {
+            if (_monoBehaviourBytes == null || _monoBehaviourBytes.Length == 0)
+                _monoBehaviourBytes = GameObjectHelper.GetMonoBehaviourAssetBytes(_fileInstance.file, ComponentInfo);
+            _monoBehaviourBytes[12] = (byte)(enabledState ? 1 : 0);
+        }
+
         public void ChangeAllFileIDFields(AssetTypeValueField baseField, int? oldFileId, int newFileId, bool skipGameObjectField = true)
         {
             foreach (var child in baseField.Children)
@@ -129,7 +142,10 @@ namespace GameObjectHierarchyTool.ComponentEditor
 
         public void SaveChanges()
         {
-            ComponentInfo.SetNewData(ComponentBase);
+            if (IsMonoBehaviour && _monoBehaviourBytes != null)
+                ComponentInfo.SetNewData(_monoBehaviourBytes);
+            else
+                ComponentInfo.SetNewData(ComponentBase);
         }
 
         public override string ToString()

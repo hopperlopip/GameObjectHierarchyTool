@@ -33,18 +33,7 @@ namespace GameObjectHierarchyTool
                 byte[] componentData;
                 if (componentType == (int)AssetClassID.MonoBehaviour)
                 {
-                    if (!componentExtInfo.info.IsReplacerPreviewable)
-                    {
-                        // Workaround to get valid MonoBehaviour data for already existing GameObject
-                        componentData = GetAssetBytes(assetsFile, componentExtInfo.info);
-                    }
-                    else
-                    {
-                        // Workaround to get valid MonoBehaviour data for imported GameObject
-                        MemoryStream ms = new();
-                        componentExtInfo.info.Replacer.GetPreviewStream().CopyTo(ms);
-                        componentData = ms.ToArray();
-                    }
+                    componentData = GetMonoBehaviourAssetBytes(assetsFile, componentExtInfo.info);
                 }
                 else
                 {
@@ -450,10 +439,28 @@ namespace GameObjectHierarchyTool
             return transformBase["m_GameObject.m_PathID"].AsLong;
         }
 
-        private byte[] GetAssetBytes(AssetsFile assetFile, AssetFileInfo assetFileInfo)
+        public static byte[] GetAssetBytes(AssetsFile assetsFile, AssetFileInfo assetFileInfo)
         {
-            assetFile.Reader.Position = assetFileInfo.GetAbsoluteByteOffset(assetFile);
-            return assetFile.Reader.ReadBytes(Convert.ToInt32(assetFileInfo.ByteSize));
+            assetsFile.Reader.Position = assetFileInfo.GetAbsoluteByteOffset(assetsFile);
+            return assetsFile.Reader.ReadBytes(Convert.ToInt32(assetFileInfo.ByteSize));
+        }
+
+        public static byte[] GetMonoBehaviourAssetBytes(AssetsFile assetsFile, AssetFileInfo assetFileInfo)
+        {
+            byte[] assetData;
+            if (!assetFileInfo.IsReplacerPreviewable)
+            {
+                // Workaround to get valid MonoBehaviour data for already existing GameObject
+                assetData = GetAssetBytes(assetsFile, assetFileInfo);
+            }
+            else
+            {
+                // Workaround to get valid MonoBehaviour data for imported GameObject
+                MemoryStream ms = new();
+                assetFileInfo.Replacer.GetPreviewStream().CopyTo(ms);
+                assetData = ms.ToArray();
+            }
+            return assetData;
         }
 
         public void ChangeGameObjectFather(long gameObjectPathId, long newFatherPathId)
