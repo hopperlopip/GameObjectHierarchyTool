@@ -172,15 +172,26 @@ namespace GameObjectHierarchyTool.ComponentEditor
             selectNewFileIdForm.ShowDialog();
             if (!selectNewFileIdForm.applied)
                 return;
-            int? oldPathId = selectNewFileIdForm.oldPathId;
-            int newPathId = selectNewFileIdForm.newPathId;
+            int? oldFileId = selectNewFileIdForm.oldFileId;
+            int newFileId = selectNewFileIdForm.newFileId;
             foreach (ListViewItem item in componentListView.SelectedItems)
             {
                 Component component = (Component)item.Tag;
-                component.ChangeAllFileIDFields(component.ComponentBase, oldPathId, newPathId);
+                if (component.IsTransform)
+                {
+                    MessageBox.Show("The component is a Transform. You shouldn't change its FileIDs.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    continue;
+                }
+                if (!MainWindow.IsMonoBehaviourParsingEnabled && component.IsMonoBehaviour)
+                {
+                    MessageBox.Show($"Can't change FileIDs for the component \"{component.Name}\".\r\n" +
+                        $"Enable the MonoBehaviour parsing option in order to change FileIDs in the MonoBehaviour assets.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    continue;
+                }
+                component.ChangeAllFileIDFields(oldFileId, newFileId);
                 component.SaveChanges();
+                modified = true;
             }
-            modified = true;
         }
     }
 }

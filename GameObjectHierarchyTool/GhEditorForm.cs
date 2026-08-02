@@ -1,9 +1,11 @@
-﻿namespace GameObjectHierarchyTool
+﻿using GameObjectHierarchyTool.XResources;
+
+namespace GameObjectHierarchyTool
 {
     public partial class GhEditorForm : Form
     {
-        bool modified = false;
-        string initFormTitle;
+        private bool _modified = false;
+        private string _initFormTitle;
 
         const string QUESTION_TITLE = "Question";
 
@@ -14,7 +16,7 @@
         public GhEditorForm(string ghFileName, GameObjectHierarchy rootGameObjectHierarchy)
         {
             InitializeComponent();
-            initFormTitle = Text;
+            _initFormTitle = Text;
             FormClosing += GhEditorForm_FormClosing;
             this.ghFileName = ghFileName;
             this.rootGameObjectHierarchy = rootGameObjectHierarchy;
@@ -34,7 +36,7 @@
 
         private void GhEditorForm_FormClosing(object? sender, FormClosingEventArgs e)
         {
-            if (modified == true)
+            if (_modified == true)
             {
                 switch (MessageBox.Show("Would you like to save changes before exit?", QUESTION_TITLE, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question))
                 {
@@ -77,13 +79,13 @@
         {
             if (state is ModifiedState.Modified)
             {
-                modified = true;
-                Text = initFormTitle + $" - {Path.GetFileName(ghFileName)} - Modified";
+                _modified = true;
+                Text = _initFormTitle + $" - {Path.GetFileName(ghFileName)} - Modified";
             }
             else if (state is ModifiedState.None or ModifiedState.Saved)
             {
-                modified = false;
-                Text = initFormTitle + $" - {Path.GetFileName(ghFileName)}";
+                _modified = false;
+                Text = _initFormTitle + $" - {Path.GetFileName(ghFileName)}";
             }
         }
 
@@ -282,6 +284,14 @@
 
             //We don't close the whole application because the GH Form can be opened from the MainForm.
             //Application.Exit();
+        }
+
+        private void crossAssetsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CrossResourcesForm crossResourcesForm = new CrossResourcesForm(rootGameObjectHierarchy.crossResources);
+            crossResourcesForm.ShowDialog();
+            if (crossResourcesForm.modified)
+                SetModifiedState(ModifiedState.Modified);
         }
     }
 }

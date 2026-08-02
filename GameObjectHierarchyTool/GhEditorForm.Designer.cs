@@ -35,11 +35,12 @@
             saveToolStripMenuItem = new ToolStripMenuItem();
             saveAsToolStripMenuItem = new ToolStripMenuItem();
             exitToolStripMenuItem = new ToolStripMenuItem();
+            crossAssetsToolStripMenuItem = new ToolStripMenuItem();
             saveGhDialog = new SaveFileDialog();
             nodeMenuStrip = new ContextMenuStrip(components);
             renameToolStripMenuItem = new ToolStripMenuItem();
             removeHierarchyToolStripMenuItem = new ToolStripMenuItem();
-            ghTreeView = new TreeViewEx.TreeViewEx();
+            ghTreeView = new GameObjectHierarchyTool.TreeViewEx.TreeViewEx();
             menuStrip1.SuspendLayout();
             nodeMenuStrip.SuspendLayout();
             SuspendLayout();
@@ -47,7 +48,7 @@
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(20, 20);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, crossAssetsToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Padding = new Padding(5, 2, 0, 2);
@@ -84,6 +85,13 @@
             exitToolStripMenuItem.Size = new Size(186, 22);
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
+            // 
+            // crossAssetsToolStripMenuItem
+            // 
+            crossAssetsToolStripMenuItem.Name = "crossAssetsToolStripMenuItem";
+            crossAssetsToolStripMenuItem.Size = new Size(84, 20);
+            crossAssetsToolStripMenuItem.Text = "Cross-assets";
+            crossAssetsToolStripMenuItem.Click += crossAssetsToolStripMenuItem_Click;
             // 
             // saveGhDialog
             // 
@@ -156,5 +164,6 @@
         private ToolStripMenuItem renameToolStripMenuItem;
         private ToolStripMenuItem exitToolStripMenuItem;
         private TreeViewEx.TreeViewEx ghTreeView;
+        private ToolStripMenuItem crossAssetsToolStripMenuItem;
     }
 }

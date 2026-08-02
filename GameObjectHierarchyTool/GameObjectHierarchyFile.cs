@@ -1,4 +1,5 @@
 ﻿using AssetsTools.NET;
+using GameObjectHierarchyTool.XResources;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,13 @@ namespace GameObjectHierarchyTool
             writer.Write(FILE_SIGNATURE);
             writer.Align();
 
-            writer.Write(gameObjectHierarchy.Serialize());
+            byte[] gameObjectHierarchyBytes = gameObjectHierarchy.Serialize();
+            writer.Write(gameObjectHierarchyBytes.Length);
+            writer.Write(gameObjectHierarchyBytes);
+
+            byte[] crossResourcesBytes = gameObjectHierarchy.crossResources.Serialize();
+            writer.Write(crossResourcesBytes.Length);
+            writer.Write(crossResourcesBytes);
 
             return stream.ToArray();
         }
@@ -37,9 +44,14 @@ namespace GameObjectHierarchyTool
             }
             reader.Align();
 
-            long dataLength = stream.Length - reader.Position;
-            byte[] gameObjectHierarchyBytes = reader.ReadBytes(Convert.ToInt32(dataLength));
-            gameObjectHierarchy = GameObjectHierarchy.Deserialize(gameObjectHierarchyBytes);
+            int gameObjectHierarchyBytesLength = reader.ReadInt32();
+            byte[] gameObjectHierarchyBytes = reader.ReadBytes(gameObjectHierarchyBytesLength);
+
+            int crossResourcesBytesLength = reader.ReadInt32();
+            byte[] crossResourcesBytes = reader.ReadBytes(crossResourcesBytesLength);
+            CrossResources crossResources = CrossResources.Deserialize(crossResourcesBytes);
+
+            gameObjectHierarchy = GameObjectHierarchy.Deserialize(gameObjectHierarchyBytes, crossResources);
 
             return gameObjectHierarchy;
         }

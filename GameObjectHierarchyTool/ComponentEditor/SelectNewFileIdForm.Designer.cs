@@ -30,22 +30,22 @@
         {
             oldFileIdGroupBox = new GroupBox();
             anyCheckBox = new CheckBox();
-            oldPathIdUpDown = new NumericUpDown();
+            oldFileIdUpDown = new NumericUpDown();
             newFileIdGroupBox = new GroupBox();
-            newPathIdUpDown = new NumericUpDown();
+            newFileIdUpDown = new NumericUpDown();
             okButton = new Button();
             cancelButton = new Button();
             oldFileIdGroupBox.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)oldPathIdUpDown).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)oldFileIdUpDown).BeginInit();
             newFileIdGroupBox.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)newPathIdUpDown).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)newFileIdUpDown).BeginInit();
             SuspendLayout();
             // 
             // oldFileIdGroupBox
             // 
             oldFileIdGroupBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             oldFileIdGroupBox.Controls.Add(anyCheckBox);
-            oldFileIdGroupBox.Controls.Add(oldPathIdUpDown);
+            oldFileIdGroupBox.Controls.Add(oldFileIdUpDown);
             oldFileIdGroupBox.Location = new Point(12, 12);
             oldFileIdGroupBox.Name = "oldFileIdGroupBox";
             oldFileIdGroupBox.Size = new Size(363, 75);
@@ -64,20 +64,20 @@
             anyCheckBox.UseVisualStyleBackColor = true;
             anyCheckBox.CheckedChanged += anyCheckBox_CheckedChanged;
             // 
-            // oldPathIdUpDown
+            // oldFileIdUpDown
             // 
-            oldPathIdUpDown.Dock = DockStyle.Fill;
-            oldPathIdUpDown.Location = new Point(3, 19);
-            oldPathIdUpDown.Maximum = new decimal(new int[] { int.MaxValue, 0, 0, 0 });
-            oldPathIdUpDown.Minimum = new decimal(new int[] { int.MinValue, 0, 0, int.MinValue });
-            oldPathIdUpDown.Name = "oldPathIdUpDown";
-            oldPathIdUpDown.Size = new Size(357, 23);
-            oldPathIdUpDown.TabIndex = 0;
+            oldFileIdUpDown.Dock = DockStyle.Fill;
+            oldFileIdUpDown.Location = new Point(3, 19);
+            oldFileIdUpDown.Maximum = new decimal(new int[] { int.MaxValue, 0, 0, 0 });
+            oldFileIdUpDown.Minimum = new decimal(new int[] { int.MinValue, 0, 0, int.MinValue });
+            oldFileIdUpDown.Name = "oldFileIdUpDown";
+            oldFileIdUpDown.Size = new Size(357, 23);
+            oldFileIdUpDown.TabIndex = 0;
             // 
             // newFileIdGroupBox
             // 
             newFileIdGroupBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            newFileIdGroupBox.Controls.Add(newPathIdUpDown);
+            newFileIdGroupBox.Controls.Add(newFileIdUpDown);
             newFileIdGroupBox.Location = new Point(12, 93);
             newFileIdGroupBox.Name = "newFileIdGroupBox";
             newFileIdGroupBox.Size = new Size(363, 48);
@@ -85,15 +85,15 @@
             newFileIdGroupBox.TabStop = false;
             newFileIdGroupBox.Text = "New FileID";
             // 
-            // newPathIdUpDown
+            // newFileIdUpDown
             // 
-            newPathIdUpDown.Dock = DockStyle.Fill;
-            newPathIdUpDown.Location = new Point(3, 19);
-            newPathIdUpDown.Maximum = new decimal(new int[] { int.MaxValue, 0, 0, 0 });
-            newPathIdUpDown.Minimum = new decimal(new int[] { int.MinValue, 0, 0, int.MinValue });
-            newPathIdUpDown.Name = "newPathIdUpDown";
-            newPathIdUpDown.Size = new Size(357, 23);
-            newPathIdUpDown.TabIndex = 0;
+            newFileIdUpDown.Dock = DockStyle.Fill;
+            newFileIdUpDown.Location = new Point(3, 19);
+            newFileIdUpDown.Maximum = new decimal(new int[] { int.MaxValue, 0, 0, 0 });
+            newFileIdUpDown.Minimum = new decimal(new int[] { int.MinValue, 0, 0, int.MinValue });
+            newFileIdUpDown.Name = "newFileIdUpDown";
+            newFileIdUpDown.Size = new Size(357, 23);
+            newFileIdUpDown.TabIndex = 0;
             // 
             // okButton
             // 
@@ -134,9 +134,9 @@
             Text = "Select new File ID";
             oldFileIdGroupBox.ResumeLayout(false);
             oldFileIdGroupBox.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)oldPathIdUpDown).EndInit();
+            ((System.ComponentModel.ISupportInitialize)oldFileIdUpDown).EndInit();
             newFileIdGroupBox.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)newPathIdUpDown).EndInit();
+            ((System.ComponentModel.ISupportInitialize)newFileIdUpDown).EndInit();
             ResumeLayout(false);
         }
 
@@ -144,9 +144,9 @@
 
         private GroupBox oldFileIdGroupBox;
         private CheckBox anyCheckBox;
-        private NumericUpDown oldPathIdUpDown;
+        private NumericUpDown oldFileIdUpDown;
         private GroupBox newFileIdGroupBox;
-        private NumericUpDown newPathIdUpDown;
+        private NumericUpDown newFileIdUpDown;
         private Button okButton;
         private Button cancelButton;
     }

@@ -4,13 +4,15 @@ namespace GameObjectHierarchyTool
 {
     public class Component
     {
+        public string resourceName = string.Empty;
         public int typeId;
         public byte[] data = new byte[0];
 
-        public Component(int typeId, byte[] data)
+        public Component(int typeId, byte[] data, string resourceName)
         {
             this.typeId = typeId;
             this.data = data;
+            this.resourceName = resourceName;
         }
 
         public Component() { }
@@ -20,6 +22,7 @@ namespace GameObjectHierarchyTool
             MemoryStream stream = new MemoryStream();
             AssetsFileWriter writer = new AssetsFileWriter(stream);
 
+            writer.Write(resourceName);
             writer.Write(typeId);
             writer.Write(data.Length);
             writer.Write(data);
@@ -33,6 +36,7 @@ namespace GameObjectHierarchyTool
             MemoryStream stream = new MemoryStream(bytes);
             AssetsFileReader reader = new AssetsFileReader(stream);
 
+            component.resourceName = reader.ReadString();
             component.typeId = reader.ReadInt32();
             int dataLength = reader.ReadInt32();
             component.data = reader.ReadBytes(dataLength);

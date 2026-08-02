@@ -14,8 +14,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Mono.Cecil" Version="0.11.6" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="AssetsTools.NET">
       <HintPath>AssetsToolsLibs\AssetsTools.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="AssetsTools.NET.MonoCecil">
+      <HintPath>AssetsToolsLibs\AssetsTools.NET.MonoCecil.dll</HintPath>
     </Reference>
   </ItemGroup>
 

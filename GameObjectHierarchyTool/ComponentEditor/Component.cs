@@ -20,7 +20,7 @@ namespace GameObjectHierarchyTool.ComponentEditor
             get => TypeId == (int)AssetClassID.Transform || TypeId == (int)AssetClassID.RectTransform;
         }
 
-        private bool IsMonoBehaviour => TypeId == (int)AssetClassID.MonoBehaviour;
+        public bool IsMonoBehaviour => TypeId == (int)AssetClassID.MonoBehaviour;
 
         public bool IsEnabled
         {
@@ -121,7 +121,12 @@ namespace GameObjectHierarchyTool.ComponentEditor
             _monoBehaviourBytes[12] = (byte)(enabledState ? 1 : 0);
         }
 
-        public void ChangeAllFileIDFields(AssetTypeValueField baseField, int? oldFileId, int newFileId, bool skipGameObjectField = true)
+        public void ChangeAllFileIDFields(int? oldFileId, int newFileId)
+        {
+            ChangeAllFileIDFields(ComponentBase, oldFileId, newFileId, true);
+        }
+
+        public static void ChangeAllFileIDFields(AssetTypeValueField baseField, int? oldFileId, int newFileId, bool skipGameObjectField = false)
         {
             foreach (var child in baseField.Children)
             {
@@ -136,7 +141,7 @@ namespace GameObjectHierarchyTool.ComponentEditor
                         child.AsInt = newFileId;
                     }
                 }
-                ChangeAllFileIDFields(child, oldFileId, newFileId, false);
+                ChangeAllFileIDFields(child, oldFileId, newFileId);
             }
         }
 

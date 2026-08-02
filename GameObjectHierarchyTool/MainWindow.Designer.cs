@@ -37,6 +37,13 @@
             saveToolStripMenuItem = new ToolStripMenuItem();
             saveAsToolStripMenuItem = new ToolStripMenuItem();
             exitToolStripMenuItem = new ToolStripMenuItem();
+            optionsToolStripMenuItem = new ToolStripMenuItem();
+            enableMonoBehaviourParsingToolStripMenuItem = new ToolStripMenuItem();
+            exportToolStripMenuItem = new ToolStripMenuItem();
+            collectAllCrossRefAssetsToolStripMenuItem = new ToolStripMenuItem();
+            importToolStripMenuItem1 = new ToolStripMenuItem();
+            changeShaderPptrInAMaterialAssetsToolStripMenuItem = new ToolStripMenuItem();
+            makeNullPptrToAnInvalidAssetPointersToolStripMenuItem = new ToolStripMenuItem();
             gHEditorToolStripMenuItem = new ToolStripMenuItem();
             openAssetsDialog = new OpenFileDialog();
             saveAssetsDialog = new SaveFileDialog();
@@ -55,7 +62,7 @@
             removeHierarchyToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator2 = new ToolStripSeparator();
             createGameObjectNodeStripMenuItem = new ToolStripMenuItem();
-            gameObjectTreeView = new TreeViewEx.TreeViewEx();
+            gameObjectTreeView = new GameObjectHierarchyTool.TreeViewEx.TreeViewEx();
             menuStrip1.SuspendLayout();
             treeViewMenuStrip.SuspendLayout();
             nodeMenuStrip.SuspendLayout();
@@ -64,7 +71,7 @@
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(20, 20);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, gHEditorToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, optionsToolStripMenuItem, gHEditorToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Padding = new Padding(5, 2, 0, 2);
@@ -116,6 +123,59 @@
             exitToolStripMenuItem.Size = new Size(186, 22);
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
+            // 
+            // optionsToolStripMenuItem
+            // 
+            optionsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { enableMonoBehaviourParsingToolStripMenuItem, exportToolStripMenuItem, importToolStripMenuItem1 });
+            optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
+            optionsToolStripMenuItem.Size = new Size(61, 20);
+            optionsToolStripMenuItem.Text = "Options";
+            // 
+            // enableMonoBehaviourParsingToolStripMenuItem
+            // 
+            enableMonoBehaviourParsingToolStripMenuItem.CheckOnClick = true;
+            enableMonoBehaviourParsingToolStripMenuItem.Name = "enableMonoBehaviourParsingToolStripMenuItem";
+            enableMonoBehaviourParsingToolStripMenuItem.Size = new Size(239, 22);
+            enableMonoBehaviourParsingToolStripMenuItem.Text = "Enable MonoBehaviour parsing";
+            enableMonoBehaviourParsingToolStripMenuItem.Click += enableMonoBehaviourParsingToolStripMenuItem_Click;
+            // 
+            // exportToolStripMenuItem
+            // 
+            exportToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { collectAllCrossRefAssetsToolStripMenuItem });
+            exportToolStripMenuItem.Name = "exportToolStripMenuItem";
+            exportToolStripMenuItem.Size = new Size(239, 22);
+            exportToolStripMenuItem.Text = "Export hierarchy";
+            // 
+            // collectAllCrossRefAssetsToolStripMenuItem
+            // 
+            collectAllCrossRefAssetsToolStripMenuItem.CheckOnClick = true;
+            collectAllCrossRefAssetsToolStripMenuItem.Name = "collectAllCrossRefAssetsToolStripMenuItem";
+            collectAllCrossRefAssetsToolStripMenuItem.Size = new Size(325, 22);
+            collectAllCrossRefAssetsToolStripMenuItem.Text = "Collect all cross-referenced assets (cross-assets)";
+            // 
+            // importToolStripMenuItem1
+            // 
+            importToolStripMenuItem1.DropDownItems.AddRange(new ToolStripItem[] { changeShaderPptrInAMaterialAssetsToolStripMenuItem, makeNullPptrToAnInvalidAssetPointersToolStripMenuItem });
+            importToolStripMenuItem1.Name = "importToolStripMenuItem1";
+            importToolStripMenuItem1.Size = new Size(239, 22);
+            importToolStripMenuItem1.Text = "Import hierarchy";
+            // 
+            // changeShaderPptrInAMaterialAssetsToolStripMenuItem
+            // 
+            changeShaderPptrInAMaterialAssetsToolStripMenuItem.CheckOnClick = true;
+            changeShaderPptrInAMaterialAssetsToolStripMenuItem.Name = "changeShaderPptrInAMaterialAssetsToolStripMenuItem";
+            changeShaderPptrInAMaterialAssetsToolStripMenuItem.Size = new Size(344, 22);
+            changeShaderPptrInAMaterialAssetsToolStripMenuItem.Text = "Change Shader pointer in a Material assets";
+            changeShaderPptrInAMaterialAssetsToolStripMenuItem.Click += changeShaderPptrInAMaterialAssetsToolStripMenuItem_Click;
+            // 
+            // makeNullPptrToAnInvalidAssetPointersToolStripMenuItem
+            // 
+            makeNullPptrToAnInvalidAssetPointersToolStripMenuItem.Checked = true;
+            makeNullPptrToAnInvalidAssetPointersToolStripMenuItem.CheckOnClick = true;
+            makeNullPptrToAnInvalidAssetPointersToolStripMenuItem.CheckState = CheckState.Checked;
+            makeNullPptrToAnInvalidAssetPointersToolStripMenuItem.Name = "makeNullPptrToAnInvalidAssetPointersToolStripMenuItem";
+            makeNullPptrToAnInvalidAssetPointersToolStripMenuItem.Size = new Size(344, 22);
+            makeNullPptrToAnInvalidAssetPointersToolStripMenuItem.Text = "Make Null Pointer to an invalid cross-asset pointers";
             // 
             // gHEditorToolStripMenuItem
             // 
@@ -292,5 +352,12 @@
         private ToolStripSeparator toolStripSeparator1;
         private ToolStripSeparator toolStripSeparator2;
         private TreeViewEx.TreeViewEx gameObjectTreeView;
+        private ToolStripMenuItem optionsToolStripMenuItem;
+        private ToolStripMenuItem enableMonoBehaviourParsingToolStripMenuItem;
+        private ToolStripMenuItem exportToolStripMenuItem;
+        private ToolStripMenuItem collectAllCrossRefAssetsToolStripMenuItem;
+        private ToolStripMenuItem importToolStripMenuItem1;
+        private ToolStripMenuItem changeShaderPptrInAMaterialAssetsToolStripMenuItem;
+        private ToolStripMenuItem makeNullPptrToAnInvalidAssetPointersToolStripMenuItem;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AssetsTools.NET;
+using GameObjectHierarchyTool.XResources;
 
 namespace GameObjectHierarchyTool
 {
@@ -7,11 +8,13 @@ namespace GameObjectHierarchyTool
         public GameObject gameObject = new();
         public GameObjectHierarchy? father;
         public List<GameObjectHierarchy> children = new();
+        public CrossResources crossResources = new CrossResources(MainWindow.Manager);
 
-        public GameObjectHierarchy(GameObject gameObject, List<GameObjectHierarchy> children)
+        public GameObjectHierarchy(GameObject gameObject, List<GameObjectHierarchy> children, CrossResources crossResources)
         {
             this.gameObject = gameObject;
             this.children = children;
+            this.crossResources = crossResources;
         }
 
         public GameObjectHierarchy() { }
@@ -37,7 +40,7 @@ namespace GameObjectHierarchyTool
             return stream.ToArray();
         }
 
-        static public GameObjectHierarchy Deserialize(byte[] bytes)
+        static public GameObjectHierarchy Deserialize(byte[] bytes, CrossResources crossResources)
         {
             GameObjectHierarchy gameObjectHierarchy = new();
             MemoryStream stream = new MemoryStream(bytes);
@@ -46,6 +49,7 @@ namespace GameObjectHierarchyTool
             int gameObjectBytesLength = reader.ReadInt32();
             byte[] gameObjectBytes = reader.ReadBytes(gameObjectBytesLength);
             gameObjectHierarchy.gameObject = GameObject.Deserialize(gameObjectBytes);
+            gameObjectHierarchy.crossResources = crossResources;
             reader.Align();
             int childrenCount = reader.ReadInt32();
 
@@ -53,7 +57,7 @@ namespace GameObjectHierarchyTool
             {
                 int childBytesLength = reader.ReadInt32();
                 byte[] childBytes = reader.ReadBytes(childBytesLength);
-                gameObjectHierarchy.children.Add(Deserialize(childBytes));
+                gameObjectHierarchy.children.Add(Deserialize(childBytes, crossResources));
                 gameObjectHierarchy.children[i].father = gameObjectHierarchy;
             }
 

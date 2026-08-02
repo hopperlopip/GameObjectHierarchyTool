@@ -12,8 +12,8 @@ namespace GameObjectHierarchyTool.ComponentEditor
 {
     public partial class SelectNewFileIdForm : Form
     {
-        public int? oldPathId;
-        public int newPathId;
+        public int? oldFileId;
+        public int newFileId;
         public bool applied;
 
         public SelectNewFileIdForm()
@@ -23,16 +23,16 @@ namespace GameObjectHierarchyTool.ComponentEditor
 
         private void anyCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            oldPathIdUpDown.Enabled = !anyCheckBox.Checked;
+            oldFileIdUpDown.Enabled = !anyCheckBox.Checked;
         }
 
         private void okButton_Click(object sender, EventArgs e)
         {
             if (anyCheckBox.Checked)
-                oldPathId = null;
+                oldFileId = null;
             else
-                oldPathId = (int)oldPathIdUpDown.Value;
-            newPathId = (int)newPathIdUpDown.Value;
+                oldFileId = (int)oldFileIdUpDown.Value;
+            newFileId = (int)newFileIdUpDown.Value;
             applied = true;
             Close();
         }
