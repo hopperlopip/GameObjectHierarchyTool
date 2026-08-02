@@ -10,6 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="XResources\CrossResources.cs~RFda0d914.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="GOHT-Icon.ico" />
   </ItemGroup>
 
